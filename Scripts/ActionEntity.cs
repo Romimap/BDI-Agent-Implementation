@@ -7,6 +7,6 @@ public abstract class ActionEntity : Entity {
         
     }
 
-    public abstract void Do (string action, List<object> parameters);
-    public abstract List<string> GetActionList();
+    public abstract void Do (Agent agent, Action action);
+    public abstract List<string> GetActionNames();
 }

@@ -20,6 +20,20 @@ public abstract class Entity {
         _solid = Solid;
     }
 
+    public Coord GetCoord () {
+        return new Coord(X, Y);
+    }
+
+    public void SetCoord(int x, int y) {
+        _x = x;
+        _y = y;
+    }
+
+    public void SetCoord(Coord coord) {
+        _x = coord.X;
+        _y = coord.Y;
+    }
+    
     public virtual void Step () {} 
 
     public abstract Entity Clone ();
