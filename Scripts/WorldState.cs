@@ -206,6 +206,10 @@ public class WorldState {
         return ans;
     }
 
+    public Dictionary<string, Entity> GetEntitiesAt(int x, int y) {
+        return _map[x][y];
+    }
+
     public int AddPercept (WorldState percept) {
         int deltaBeliefs = 0;
         for (int x = 0; x < _map.Count; x++) {

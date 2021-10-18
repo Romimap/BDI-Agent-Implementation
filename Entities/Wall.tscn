@@ -7,6 +7,7 @@ albedo_color = Color( 1, 0.345098, 0.345098, 1 )
 size = Vector3( 1, 1, 1 )
 
 [node name="Wall" type="MeshInstance"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
 material_override = SubResource( 1 )
 mesh = SubResource( 2 )
 material/0 = null
