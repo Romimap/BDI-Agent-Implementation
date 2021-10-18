@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+
+void vertex() {
+	vec3 p = VERTEX;
+	p.y += sin(TIME + (p.x + p.z) / 2.0) / 2.0;
+	VERTEX = p;
+}
+
+void fragment() {
+	ALPHA = 0.2;
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[node name="CSGBox" type="CSGBox"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
+width = 1.0
+height = 1.0
+depth = 1.0
+material = SubResource( 2 )
