@@ -76,8 +76,36 @@ public class Agent : Entity {
         }
     }
 
-    public void MakePlans () {
-        //TODO (call SA_Move)
+    public List<Action> MakePlans (int maxCol, int maxTries, int maxMoves, float baseTemp, float alpha) {
+        List<Action> bestPlan = null;
+        float bestScore = float.MaxValue;
+
+        for (int i = 0; i < maxTries; i++) {
+            WorldState x = Beliefs.Clone();
+            List<Action> plan = new List<Action>();
+
+            float temperature = baseTemp;
+            for (int j = 0; j < maxMoves; j++) {
+
+                Action a;
+                WorldState xNext;
+                (xNext, a) = SimulatedAnhealingMove(x, maxCol, temperature);
+                //TODO: Free x
+                x = xNext;
+                if (x != null) 
+                    plan.Add(a);
+                
+                temperature *= alpha;
+            }
+                    
+            float xScore = _currentDesire.Score(x);
+            if (xScore < bestScore) {
+                bestScore = xScore;
+                bestPlan = plan;
+            }
+        }
+
+        return bestPlan;
     }
 
     public (WorldState, Action) SimulatedAnhealingMove (WorldState currentWorldState, int maxCol, float temperature) {
@@ -99,6 +127,7 @@ public class Agent : Entity {
                     accepted = true;
                 }
                 if (newScore < bestScore) {
+                    //TODO, free bestWorldState
                     bestWorldState = newWorldState;
                     bestScore = newScore;
                     bestAction = randomAction;
