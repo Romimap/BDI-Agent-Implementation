@@ -261,8 +261,8 @@ public class WorldState {
 
     public override string ToString() {
         string ans = "";
-        for (int x = 0; x < _map.Count; x++) {
-            for (int y = 0; y < _map[x].Count; y++) {
+        for (int y = 0; y < _map[0].Count; y++) {
+            for (int x = 0; x < _map.Count; x++) {
                 if (_map[x][y] != null && _map[x][y].Count > 0) {
                     foreach(KeyValuePair<string, Entity> kvp in _map[x][y]) {
                         if (kvp.Value is Agent) {

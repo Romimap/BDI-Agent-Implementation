@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/Map 3.png-1b49dec82f37f9edad1d461d32548782.stex"
+path="res://.import/Map 2.png-a2c409572693031a2e455f3bc631081b.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Bitmaps/Map 3.png"
-dest_files=[ "res://.import/Map 3.png-1b49dec82f37f9edad1d461d32548782.stex" ]
+source_file="res://Maps/Map 2.png"
+dest_files=[ "res://.import/Map 2.png-a2c409572693031a2e455f3bc631081b.stex" ]
 
 [params]
 
