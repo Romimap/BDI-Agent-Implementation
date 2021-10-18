@@ -36,6 +36,10 @@ public class WorldState {
                 if (entity is ActionEntity) {
                     _actionEntities.Add(entity.Name, (ActionEntity)entity);
                 }
+                if (!(entity is Wall)) {
+                    Entity floor = EntityFactory.New("floor");
+                    _map[x][y].Add(floor.Name, floor);
+                }
             }
         }
 
@@ -232,8 +236,6 @@ public class WorldState {
                          if (!percept._map[x][y].ContainsKey(kvp.Key)) {
                             _map[x][y].Remove(kvp.Key);
                             _entities.Remove(kvp.Key);
-                            if (kvp.Key is ActionEntity)
-                                _actionEntities.Remove(kvp.Key);
                             deltaBeliefs++;
                         }
                     }
@@ -263,8 +265,8 @@ public class WorldState {
 
     public override string ToString() {
         string ans = "";
-        for (int x = 0; x < _map.Count; x++) {
-            for (int y = 0; y < _map[x].Count; y++) {
+        for (int y = 0; y < _map[0].Count; y++) {
+            for (int x = 0; x < _map.Count; x++) {
                 if (_map[x][y] != null && _map[x][y].Count > 0) {
                     foreach(KeyValuePair<string, Entity> kvp in _map[x][y]) {
                         if (kvp.Value is Agent) {
