@@ -232,6 +232,8 @@ public class WorldState {
                          if (!percept._map[x][y].ContainsKey(kvp.Key)) {
                             _map[x][y].Remove(kvp.Key);
                             _entities.Remove(kvp.Key);
+                            if (kvp.Key is ActionEntity)
+                                _actionEntities.Remove(kvp.Key);
                             deltaBeliefs++;
                         }
                     }
