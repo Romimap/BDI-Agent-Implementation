@@ -1,13 +1,11 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=2]
 
 [sub_resource type="SpatialMaterial" id=1]
-albedo_color = Color( 1, 0.345098, 0.345098, 1 )
+albedo_color = Color( 0.933333, 0.403922, 0.403922, 1 )
 
-[sub_resource type="CubeMesh" id=2]
-size = Vector3( 1, 1, 1 )
-
-[node name="Wall" type="MeshInstance"]
+[node name="Wall" type="CSGBox"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
-material_override = SubResource( 1 )
-mesh = SubResource( 2 )
-material/0 = null
+width = 1.0
+height = 1.0
+depth = 1.0
+material = SubResource( 1 )
