@@ -14,7 +14,7 @@ public class Main : Spatial
 		mapViewer = new MapViewer(GetNode("VisibleMap"), GetNode("InvisibleMap"), GetNode("./Camera"));
 
 		GD.Print(realWorld);
-		System.Console.WriteLine(realWorld);
+		// System.Console.WriteLine(realWorld);
 
 		foreach (KeyValuePair<string, Agent> kvp in realWorld.Agents)
 		{

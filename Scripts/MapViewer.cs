@@ -25,6 +25,8 @@ public class MapViewer : Spatial
     private static PackedScene DOOR_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (ghost).tscn");
     private static PackedScene DOOR_OPEN = (PackedScene)ResourceLoader.Load("res://Entities/Door (open).tscn");
     private static PackedScene DOOR_OPEN_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (open ghost).tscn");
+    private static PackedScene PACKAGE = (PackedScene)ResourceLoader.Load("res://Entities/Package.tscn");
+    private static PackedScene PACKAGE_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Package (ghost).tscn");
 
 
     public MapViewer(Node visibleMap, Node invisibleMap, Node camera)
@@ -105,6 +107,10 @@ public class MapViewer : Spatial
                             if (DoorShouldBeRotated(x, y))
                                 rotation.y = Mathf.Pi / 2.0f;
                         }
+                        else if (entity is Package)
+                        {
+                            instance = (Spatial)PACKAGE.Instance();
+                        }
 
                         if (instance != null)
                         {
@@ -146,6 +152,10 @@ public class MapViewer : Spatial
 
                                 if (DoorShouldBeRotated(x, y))
                                     rotation.y = Mathf.Pi / 2.0f;
+                            }
+                            else if (entity is Package)
+                            {
+                                instance = (Spatial)PACKAGE_GHOST.Instance();
                             }
 
                             if (instance != null)
