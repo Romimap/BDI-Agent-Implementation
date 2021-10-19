@@ -27,6 +27,7 @@ public class EntityFactory
                 entity = new Package("Package;" + id++, 0, 0);
                 break;
             case "delivery spot": // Delivery spot
+                entity = new DeliverySpot("Delivery spot;" + id++, 0, 0);
                 break;
             default:
                 break;
@@ -58,6 +59,7 @@ public class EntityFactory
                 entity = new Package("Package;" + id++, 0, 0);
                 break;
             case "#00FFFF": // Delivery spot
+                entity = new DeliverySpot("Delivery spot;" + id++, 0, 0);
                 break;
             default:
                 break;

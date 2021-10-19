@@ -27,6 +27,8 @@ public class MapViewer : Spatial
     private static PackedScene DOOR_OPEN_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (open ghost).tscn");
     private static PackedScene PACKAGE = (PackedScene)ResourceLoader.Load("res://Entities/Package.tscn");
     private static PackedScene PACKAGE_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Package (ghost).tscn");
+    private static PackedScene DELIVERY_SPOT = (PackedScene)ResourceLoader.Load("res://Entities/Delivery spot.tscn");
+    private static PackedScene DELIVERY_SPOT_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Delivery spot (ghost).tscn");
 
 
     public MapViewer(Node visibleMap, Node invisibleMap, Node camera)
@@ -111,6 +113,10 @@ public class MapViewer : Spatial
                         {
                             instance = (Spatial)PACKAGE.Instance();
                         }
+                        else if (entity is DeliverySpot)
+                        {
+                            instance = (Spatial)DELIVERY_SPOT.Instance();
+                        }
 
                         if (instance != null)
                         {
@@ -156,6 +162,10 @@ public class MapViewer : Spatial
                             else if (entity is Package)
                             {
                                 instance = (Spatial)PACKAGE_GHOST.Instance();
+                            }
+                            else if (entity is DeliverySpot)
+                            {
+                                instance = (Spatial)DELIVERY_SPOT_GHOST.Instance();
                             }
 
                             if (instance != null)
