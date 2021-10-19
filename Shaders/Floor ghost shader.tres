@@ -1,4 +1,7 @@
-shader_type spatial;
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type spatial;
 
 void vertex() {
 	vec3 p = VERTEX;
@@ -7,5 +10,6 @@ void vertex() {
 }
 
 void fragment() {
+	ALBEDO = vec3(1f, 1f, 1f);
 	ALPHA = 0.2;
-}
+}"
