@@ -36,6 +36,10 @@ public class WorldState {
                 if (entity is ActionEntity) {
                     _actionEntities.Add(entity.Name, (ActionEntity)entity);
                 }
+                if (!(entity is Wall)) {
+                    Entity floor = EntityFactory.New("floor");
+                    _map[x][y].Add(floor.Name, floor);
+                }
             }
         }
 
