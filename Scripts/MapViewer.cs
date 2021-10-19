@@ -4,25 +4,27 @@ using System.Collections.Generic;
 
 public class MapViewer : Spatial
 {
-    Spatial _visibleMap;
-    Spatial _invisibleMap;
-    Camera _camera;
+    private Spatial _visibleMap;
+    private Spatial _invisibleMap;
+    private Camera _camera;
 
-    Spatial _startingVisibleMap;
-    Spatial _startingInvisibleMap;
+    private Spatial _startingVisibleMap;
+    private Spatial _startingInvisibleMap;
 
-    WorldState _beliefs;
+    private WorldState _beliefs;
+
+    private List<List<List<Spatial>>> instances;
 
     // Godot map entities prefabs
-    static PackedScene AGENT = (PackedScene)ResourceLoader.Load("res://Entities/Agent.tscn");
-    static PackedScene WALL = (PackedScene)ResourceLoader.Load("res://Entities/Wall.tscn");
-    static PackedScene WALL_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Wall (ghost).tscn");
-    static PackedScene FLOOR = (PackedScene)ResourceLoader.Load("res://Entities/Floor.tscn");
-    static PackedScene FLOOR_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Floor (ghost).tscn");
-    static PackedScene DOOR = (PackedScene)ResourceLoader.Load("res://Entities/Door.tscn");
-    static PackedScene DOOR_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (ghost).tscn");
-    static PackedScene DOOR_OPEN = (PackedScene)ResourceLoader.Load("res://Entities/Door (open).tscn");
-    static PackedScene DOOR_OPEN_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (open ghost).tscn");
+    private static PackedScene AGENT = (PackedScene)ResourceLoader.Load("res://Entities/Agent.tscn");
+    private static PackedScene WALL = (PackedScene)ResourceLoader.Load("res://Entities/Wall.tscn");
+    private static PackedScene WALL_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Wall (ghost).tscn");
+    private static PackedScene FLOOR = (PackedScene)ResourceLoader.Load("res://Entities/Floor.tscn");
+    private static PackedScene FLOOR_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Floor (ghost).tscn");
+    private static PackedScene DOOR = (PackedScene)ResourceLoader.Load("res://Entities/Door.tscn");
+    private static PackedScene DOOR_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (ghost).tscn");
+    private static PackedScene DOOR_OPEN = (PackedScene)ResourceLoader.Load("res://Entities/Door (open).tscn");
+    private static PackedScene DOOR_OPEN_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (open ghost).tscn");
 
 
     public MapViewer(Node visibleMap, Node invisibleMap, Node camera)
@@ -30,9 +32,30 @@ public class MapViewer : Spatial
         _startingVisibleMap = (Spatial)visibleMap;
         _startingInvisibleMap = (Spatial)invisibleMap;
         _camera = (Camera)camera;
+
+        InitCamera();
     }
 
-    public void DisplayMap(WorldState beliefs)
+    public void InitCamera()
+    {
+        int mapWidth = WorldState.RealWorld.Width;
+        int mapHeight = WorldState.RealWorld.Height;
+
+        // Move camera
+        Transform transform = _camera.Transform;
+
+        // ORTHOGONAL CAMERA
+        int maxWH = Math.Max(mapWidth, mapHeight);
+
+        transform.origin = new Vector3(mapWidth / 2.0f, maxWH, mapHeight / 2.0f);
+        transform.origin += new Vector3(maxWH, maxWH, maxWH);
+        transform = transform.LookingAt(new Vector3(mapWidth / 2.0f, 0, mapHeight / 2.0f), new Vector3(0, 1, 0));
+        _camera.Size = 3 + maxWH * 1.2f;
+
+        _camera.Transform = transform;
+    }
+
+    public void UpdateWith(WorldState beliefs)
     {
         _visibleMap = _startingVisibleMap;
         _invisibleMap = _startingInvisibleMap;
@@ -135,19 +158,6 @@ public class MapViewer : Spatial
                 }
             }
         }
-
-        // Move camera
-        Transform transform = _camera.Transform;
-
-        // ORTHOGONAL CAMERA
-        int maxWH = Math.Max(width, height);
-
-        transform.origin = new Vector3(width / 2.0f, maxWH, height / 2.0f);
-        transform.origin += new Vector3(maxWH, maxWH, maxWH);
-        transform = transform.LookingAt(new Vector3(width / 2.0f, 0, height / 2.0f), new Vector3(0, 1, 0));
-        _camera.Size = 3 + maxWH * 1.2f;
-
-        _camera.Transform = transform;
     }
 
     private void MoveInstance(Spatial instance, Vector3 translation, Vector3 rotation)

@@ -26,7 +26,7 @@ public class Main : Spatial
 		foreach (KeyValuePair<string, Agent> kvp in realWorld.Agents)
 		{
 			GD.Print(kvp.Value.PrintBeliefs());
-			mapViewer.DisplayMap(kvp.Value.Beliefs);
+			mapViewer.UpdateWith(kvp.Value.Beliefs);
 		}
 	}
 
