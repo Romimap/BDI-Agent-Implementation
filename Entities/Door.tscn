@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=2]
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 0.5, 0.9, 0.05 )
+
+[sub_resource type="SpatialMaterial" id=2]
+albedo_color = Color( 0.317647, 0.443137, 0.878431, 1 )
+
+[sub_resource type="CubeMesh" id=3]
+size = Vector3( 0.02, 0.9, 0.06 )
+
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 0.2, 0.2, 0.2, 1 )
+
+[node name="Door" type="CSGCombiner"]
+
+[node name="DoorLeft" type="CSGMesh" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.45, 0 )
+mesh = SubResource( 1 )
+material = SubResource( 2 )
+
+[node name="CSGMesh" type="CSGMesh" parent="DoorLeft"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24, 0, 0 )
+mesh = SubResource( 3 )
+material = SubResource( 4 )
+
+[node name="DoorRight" type="CSGMesh" parent="."]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -0.25, 0.45, 0 )
+mesh = SubResource( 1 )
+material = SubResource( 2 )
+
+[node name="CSGMesh" type="CSGMesh" parent="DoorRight"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24, 0, 0 )
+mesh = SubResource( 3 )
+material = SubResource( 4 )

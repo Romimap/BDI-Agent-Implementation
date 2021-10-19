@@ -11,11 +11,18 @@ public class MapViewer : Spatial
     Spatial _startingVisibleMap;
     Spatial _startingInvisibleMap;
 
+    WorldState _beliefs;
+
     // Godot map entities prefabs
+    static PackedScene AGENT = (PackedScene)ResourceLoader.Load("res://Entities/Agent.tscn");
     static PackedScene WALL = (PackedScene)ResourceLoader.Load("res://Entities/Wall.tscn");
     static PackedScene WALL_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Wall (ghost).tscn");
     static PackedScene FLOOR = (PackedScene)ResourceLoader.Load("res://Entities/Floor.tscn");
     static PackedScene FLOOR_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Floor (ghost).tscn");
+    static PackedScene DOOR = (PackedScene)ResourceLoader.Load("res://Entities/Door.tscn");
+    static PackedScene DOOR_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (ghost).tscn");
+    static PackedScene DOOR_OPEN = (PackedScene)ResourceLoader.Load("res://Entities/Door (open).tscn");
+    static PackedScene DOOR_OPEN_GHOST = (PackedScene)ResourceLoader.Load("res://Entities/Door (open ghost).tscn");
 
 
     public MapViewer(Node visibleMap, Node invisibleMap, Node camera)
@@ -29,6 +36,7 @@ public class MapViewer : Spatial
     {
         _visibleMap = _startingVisibleMap;
         _invisibleMap = _startingInvisibleMap;
+        _beliefs = beliefs;
 
         Spatial instance = null;
         int width = WorldState.RealWorld.Width;
@@ -45,20 +53,39 @@ public class MapViewer : Spatial
                     {
                         Entity entity = kvp.Value;
                         instance = null;
+                        Vector3 rotation = new Vector3(0, 0, 0);
+
                         if (entity is Floor)
                         {
                             instance = (Spatial)FLOOR.Instance();
-                            System.Console.WriteLine("Added floor at (" + x + ", " + y + ")");
                         }
                         else if (entity is Wall)
                         {
                             instance = (Spatial)WALL.Instance();
-                            System.Console.WriteLine("Added wall at (" + x + ", " + y + ")");
+                        }
+                        else if (entity is Agent)
+                        {
+                            instance = (Spatial)AGENT.Instance();
+                        }
+                        else if (entity is Door)
+                        {
+                            Door door = (Door)entity;
+                            if (door.IsOpen)
+                            {
+                                instance = (Spatial)DOOR_OPEN.Instance();
+                            }
+                            else
+                            {
+                                instance = (Spatial)DOOR.Instance();
+                            }
+
+                            if (DoorShouldBeRotated(x, y))
+                                rotation.y = Mathf.Pi / 2.0f;
                         }
 
                         if (instance != null)
                         {
-                            instance.Translate(new Vector3(x, 0, y));
+                            MoveInstance(instance, new Vector3(x, 0, y), rotation);
                             _visibleMap.AddChild(instance);
                         }
                     }
@@ -72,20 +99,35 @@ public class MapViewer : Spatial
                         {
                             Entity entity = kvp.Value;
                             instance = null;
+                            Vector3 rotation = new Vector3(0, 0, 0);
+
                             if (entity is Floor)
                             {
                                 instance = (Spatial)FLOOR_GHOST.Instance();
-                                System.Console.WriteLine("Added floor (ghost) at (" + x + ", " + y + ")");
                             }
                             else if (entity is Wall)
                             {
                                 instance = (Spatial)WALL_GHOST.Instance();
-                                System.Console.WriteLine("Added wall (ghost) at (" + x + ", " + y + ")");
+                            }
+                            else if (entity is Door)
+                            {
+                                Door door = (Door)entity;
+                                if (door.IsOpen)
+                                {
+                                    instance = (Spatial)DOOR_OPEN_GHOST.Instance();
+                                }
+                                else
+                                {
+                                    instance = (Spatial)DOOR_GHOST.Instance();
+                                }
+
+                                if (DoorShouldBeRotated(x, y))
+                                    rotation.y = Mathf.Pi / 2.0f;
                             }
 
                             if (instance != null)
                             {
-                                instance.Translate(new Vector3(x, 0, y));
+                                MoveInstance(instance, new Vector3(x, 0, y), rotation);
                                 _invisibleMap.AddChild(instance);
                             }
                         }
@@ -106,5 +148,46 @@ public class MapViewer : Spatial
         _camera.Size = 3 + maxWH * 1.2f;
 
         _camera.Transform = transform;
+    }
+
+    private void MoveInstance(Spatial instance, Vector3 translation, Vector3 rotation)
+    {
+        instance.Translate(translation);
+        instance.RotateX(rotation.x);
+        instance.RotateY(rotation.y);
+        instance.RotateZ(rotation.z);
+    }
+
+    private bool DoorShouldBeRotated(int x, int y)
+    {
+        bool foundWall = false;
+        Dictionary<string, Entity> entitiesUp = WorldState.RealWorld.GetEntitiesAt(x, y - 1);
+        foreach (KeyValuePair<string, Entity> kvp in entitiesUp)
+        {
+            Entity entity = kvp.Value;
+            if (entity is Wall)
+            {
+                foundWall = true;
+                break;
+            }
+        }
+        if (!foundWall)
+            return false;
+
+        foundWall = false;
+        Dictionary<string, Entity> entitiesDown = WorldState.RealWorld.GetEntitiesAt(x, y + 1);
+        foreach (KeyValuePair<string, Entity> kvp in entitiesDown)
+        {
+            Entity entity = kvp.Value;
+            if (entity is Wall)
+            {
+                foundWall = true;
+                break;
+            }
+        }
+        if (!foundWall)
+            return false;
+
+        return true;
     }
 }

@@ -211,6 +211,9 @@ public class WorldState {
     }
 
     public Dictionary<string, Entity> GetEntitiesAt(int x, int y) {
+        if (x < 0 || y < 0 || x > Width - 1 || y > Height - 1)
+            return null;
+            
         return _map[x][y];
     }
 
