@@ -2,35 +2,39 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public class Main : Spatial
-{
+public class Main : Spatial {	
+	MapViewer mapViewer;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		WorldState realWorld = new WorldState("./Maps/map001.png");
-		MapViewer mapViewer = new MapViewer(GetNode("VisibleMap"), GetNode("InvisibleMap"), GetNode("./Camera"));
+		mapViewer = new MapViewer(GetNode("VisibleMap"), GetNode("InvisibleMap"), GetNode("./Camera"));
+
+		Flag f = new Flag("flag", 0, 0);
+		realWorld.AddEntity(f, 6, 7);
+
+		Agent a = new Agent("gotoAgent", 0, 0);
+		a.AddDesire(new GoToDesire(f.X, f.Y));
+		realWorld.AddEntity(a, 7, 1);
+
+		realWorld.Init();
+
+		//WorldState percept = WorldState.RealWorld.Percept(6, 7, 1);
+		//a.Beliefs.AddPercept(percept);
 
 		GD.Print(realWorld);
-		System.Console.WriteLine(realWorld);
-
-		foreach (KeyValuePair<string, Agent> kvp in realWorld.Agents)
-		{
-			GD.Print(kvp.Value.PrintBeliefs());
-		}
-
-		realWorld.Tick();
-
-		foreach (KeyValuePair<string, Agent> kvp in realWorld.Agents)
-		{
-			GD.Print(kvp.Value.PrintBeliefs());
-			mapViewer.DisplayMap(kvp.Value.Beliefs);
-		}
-
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(float delta)
-	{
-
+	float timer = 1;
+	public override void _Process(float delta) {
+		timer -= delta;
+		if (timer <= 0) {
+			timer += 1;
+			WorldState.RealWorld.Tick();
+			foreach (KeyValuePair<string, Agent> kvp in WorldState.RealWorld.Agents) {
+				GD.Print(kvp.Value.PrintBeliefs());
+				mapViewer.DisplayMap(kvp.Value.Beliefs);
+			}
+		}
 	}
 }

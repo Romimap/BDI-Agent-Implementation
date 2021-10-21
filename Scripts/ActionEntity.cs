@@ -7,6 +7,10 @@ public abstract class ActionEntity : Entity {
         
     }
 
+    public ActionEntity (ActionEntity from) : base(from) {
+        
+    }
+
     public abstract void Do (Agent agent, Action action);
     public abstract List<string> GetActionNames();
 }

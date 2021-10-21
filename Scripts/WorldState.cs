@@ -5,8 +5,11 @@ using System.Drawing;
 
 
 public class WorldState {
+    public static int id = 0;
+    public int _id;
     public static WorldState RealWorld = null;
     private Dictionary<string, Entity> _entities = new Dictionary<string, Entity>();
+    public Dictionary<string, Entity> Entities {get{return _entities;}}
     private List<List<Dictionary<string, Entity>>> _map;
     private Dictionary<string, Agent> _agents = new Dictionary<string, Agent>();
     public Dictionary<string, Agent> Agents {get{return _agents;}}
@@ -15,6 +18,7 @@ public class WorldState {
     public int Height {get{return _map[0].Count;}}
 
     public WorldState (string bitmapPath) {
+        _id = id++;
         if (RealWorld == null) RealWorld = this;
         
         Bitmap img = new Bitmap(bitmapPath);
@@ -28,6 +32,7 @@ public class WorldState {
                 if (entity != null) { 
                     _map[x][y].Add(entity.Name, entity);
                     entity.SetCoord(x, y);
+                    _entities.Add(entity.Name, entity);
                 }
                 if (entity is Agent) {
                     _agents.Add(entity.Name, (Agent)entity);
@@ -42,12 +47,11 @@ public class WorldState {
                 }
             }
         }
-
-        Init();
     }
 
-
     private WorldState (WorldState from) {
+        _id = id++;
+
          _map = new List<List<Dictionary<string, Entity>>>(from._map.Count);
         for (int x = 0; x < from._map.Count; x++) {
             _map.Add(new List<Dictionary<string, Entity>>(from._map[x].Count));
@@ -57,6 +61,7 @@ public class WorldState {
                     Entity clone = kvp.Value.Clone();
                     _map[x][y].Add(clone.Name, clone);
                     clone.SetCoord(x, y);
+                    _entities.Add(clone.Name, clone);
 
                     if (clone is Agent) {
                         _agents.Add(clone.Name, (Agent)clone);
@@ -71,6 +76,8 @@ public class WorldState {
     }
 
     private WorldState (WorldState from, int xPos, int yPos, int radius) {
+        _id = id++;
+
         _map = new List<List<Dictionary<string, Entity>>>(from._map.Count);
         for (int x = 0; x < from._map.Count; x++) {
             _map.Add(new List<Dictionary<string, Entity>>(from._map[x].Count));
@@ -83,7 +90,8 @@ public class WorldState {
                         Entity clone = kvp.Value.Clone();
                         _map[x][y].Add(clone.Name, clone);
                         clone.SetCoord(x, y);
-                    
+                        _entities.Add(clone.Name, clone);
+
                         if (clone is Agent) {
                             _agents.Add(clone.Name, (Agent)clone);
                         }
@@ -100,6 +108,8 @@ public class WorldState {
     }
 
     private WorldState (int width, int height) {
+        _id = id++;
+
         _map = new List<List<Dictionary<string, Entity>>>(width);
         for (int x = 0; x < width; x++) {
             _map.Add(new List<Dictionary<string, Entity>>(height));
@@ -109,18 +119,23 @@ public class WorldState {
         }
     }
 
-    private void Init () {
+    public void AddEntity (Entity e, int x, int y) {
+        Entity clone = e.Clone();
+        if (clone is Agent) _agents.Add(clone.Name, (Agent)clone);
+        if (clone is ActionEntity) _actionEntities.Add(clone.Name, (ActionEntity)clone);
+        _entities.Add(clone.Name, clone);
+        _map[x][y].Add(clone.Name, clone);
+        clone.SetCoord(x, y);
+    }
+
+    public void Init () {
         foreach (KeyValuePair<string, Agent> kvp in _agents) {
             kvp.Value.Init();
         }
     }
 
     public void Tick () {
-        GD.Print("TICK");
-        GD.Print(_agents);
         foreach(KeyValuePair<string, Agent> kvp in _agents) {
-            GD.Print(kvp);
-            GD.Print(kvp.Value);
             kvp.Value.Tick();
         }
     }
@@ -135,15 +150,19 @@ public class WorldState {
         List<Coord> path = PathFind(agent, action);
         if (path == null) return null;
 
-        Coord end = path[path.Count - 1];
-        Move(agent, end);
+        if (path.Count > 2) {
+            Coord end = path[path.Count - 1];
+            Move(agent, end);
+        }
 
         actionEntity.Do(agent, action);
         return path;
     }
 
     public List<Coord> PathFind (Agent agent, Action action) {
-        if (!_actionEntities.ContainsKey(action._entityName)) return null;
+        if (!_actionEntities.ContainsKey(action._entityName)) {
+            return null;
+        }
         
         ActionEntity actionEntity = _actionEntities[action._entityName];
         Coord start = agent.GetCoord();
@@ -158,7 +177,10 @@ public class WorldState {
     public bool PathObstructed (List<Coord> path) {
         foreach(Coord coord in path) {
             foreach(KeyValuePair<string, Entity> kvp in _map[coord.X][coord.Y]) {
-                if (kvp.Value.Solid) return true;
+                if (kvp.Value.Solid) {
+                    GD.Print("OBSTRUCTED : " + kvp.Value.Name + " " + coord.X + ", " + coord.Y);
+                    return true;   
+                }
             }
         }
 
@@ -175,19 +197,15 @@ public class WorldState {
 
     public Coord Move (Entity entity, Coord coord) {
         if (!_entities.ContainsKey(entity.Name)) return new Coord(-1, -1);
+        if (entity.X == coord.X && entity.Y == coord.Y) return coord;
         Entity toMove = _entities[entity.Name];
-        _map[entity.X][entity.Y].Remove(toMove.Name);
+        _map[toMove.X][toMove.Y].Remove(toMove.Name);
         _map[coord.X][coord.Y].Add(toMove.Name, toMove);
         toMove.SetCoord(coord);
         return coord;
     }
     public Coord Move (Entity entity, int x, int y) {
-        if (!_entities.ContainsKey(entity.Name)) return new Coord(-1, -1);
-        Entity toMove = _entities[entity.Name];
-        _map[entity.X][entity.Y].Remove(toMove.Name);
-        _map[x][y].Add(toMove.Name, toMove);
-        toMove.SetCoord(new Coord(x, y));
-        return new Coord(x, y);
+        return Move(entity, new Coord(x, y));
     }
 
     public Coord GetCoord (Entity entity) {
@@ -229,6 +247,12 @@ public class WorldState {
 
                                 _map[x][y].Add(clone.Name, clone);
                                 _entities.Add(clone.Name, clone);
+                                if (clone is ActionEntity) {
+                                    _actionEntities.Add(clone.Name, (ActionEntity)clone);
+                                }
+                                if (clone is Agent) {
+                                    _agents.Add(clone.Name, (Agent)clone);
+                                }
                             }
                             deltaBeliefs++;
 
@@ -236,12 +260,24 @@ public class WorldState {
                     }
 
                     //Something missing
+                    List<string> toRemove = new List<string>();
                     foreach (KeyValuePair<string, Entity> kvp in _map[x][y]) {
-                         if (!percept._map[x][y].ContainsKey(kvp.Key)) {
-                            _map[x][y].Remove(kvp.Key);
-                            _entities.Remove(kvp.Key);
-                            deltaBeliefs++;
+                        if (!percept._map[x][y].ContainsKey(kvp.Key)) {
+                            toRemove.Add(kvp.Key);    
                         }
+                    }
+
+                    foreach(string key in toRemove) {
+                        Entity entity = _map[x][y][key];
+                        _map[x][y].Remove(key);
+                        _entities.Remove(key);
+                        if (entity is ActionEntity) {
+                            _actionEntities.Remove(key);
+                        }
+                        if (entity is Agent) {
+                            _agents.Remove(key);
+                        }
+                        deltaBeliefs++;
                     }
 
                 }
@@ -272,17 +308,27 @@ public class WorldState {
         for (int y = 0; y < _map[0].Count; y++) {
             for (int x = 0; x < _map.Count; x++) {
                 if (_map[x][y] != null && _map[x][y].Count > 0) {
+                    int i = 0;
                     foreach(KeyValuePair<string, Entity> kvp in _map[x][y]) {
                         if (kvp.Value is Agent) {
-                            ans += "A";
-                        } else if (kvp.Value is Floor) {
-                            ans += ".";
+                            if (i < 9) i = 9;
+                        } else if (kvp.Value is Door) {
+                            if (i < 8) i = 8;
                         } else if (kvp.Value is Wall) {
-                            ans += "#";
-                        } else {
-                            ans += "?";
+                            if (i < 7) i = 7;
+                        } else if (kvp.Value is Flag) {
+                            if (i < 6) i = 6;
+                        } else if (kvp.Value is Floor) {
+                            if (i < 1) i = 1;
                         }
                     }
+                    if (i == 9) ans += "@";
+                    else if (i == 8) ans += "-";
+                    else if (i == 7) ans += "#";
+                    else if (i == 6) ans += "F";
+                    else if (i == 1) ans += ".";
+                    else ans += "?";
+                        
                 } else {
                     ans += " ";
                 }

@@ -11,4 +11,8 @@ public struct Action {
         _actionName = actionName;
         _actionParameters = null;
     }
+
+    public override string ToString() {
+        return _actionName + " " + _entityName;
+    }
 }   

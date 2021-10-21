@@ -15,6 +15,7 @@ public class EntityFactory {
                 entity = new Floor("Floor;" + id++, 0, 0);
                 break;
             case "door": // Door
+                entity = new Door("Door;" + id++, 0, 0);
                 break;
             case "agent": // Agent
                 entity = new Agent("Agent" + id++, 0, 0);
@@ -42,6 +43,7 @@ public class EntityFactory {
                 entity = new Floor("Floor;" + id++, 0, 0);
                 break;
             case "#FF0000": // Door
+                entity = new Door("Door;" + id++, 0, 0);
                 break;
             case "#00FF00": // Agent
                 entity = new Agent("Agent" + id++, 0, 0);

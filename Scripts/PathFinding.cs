@@ -15,11 +15,6 @@ public class PathFinding {
             CameFrom = null;
         }
 
-        public int CompareTo(Node compareNode) {
-            if (compareNode == null)
-                return 1;
-            return this.FScore.CompareTo(compareNode.FScore);
-        }
     }
 
     private static List<Coord> ReconstructPath (Node current) {
@@ -51,8 +46,13 @@ public class PathFinding {
         openSet.Add(map[start.X, start.Y]);
 
         while (openSet.Count > 0) {
-            openSet.Sort();
+            openSet.Sort(delegate(Node a, Node b) { 
+                if (a.FScore > b.FScore) return 1;
+                if (a.FScore < b.FScore) return -1;
+                return 0; 
+            });
             Node current = openSet[0];
+            System.Console.WriteLine(current.FScore);
 
             if (current.Coord.Equals(end)) {
                 return ReconstructPath(current.CameFrom);
@@ -67,13 +67,23 @@ public class PathFinding {
             if (current.Coord.Y < h - 1) neighbours.Add(map[current.Coord.X, current.Coord.Y + 1]);
 
             foreach (Node neighbour in neighbours) {
-                float tentativeGscore = current.GScore + 1;
-                if (tentativeGscore < neighbour.GScore) {
-                    neighbour.CameFrom = current;
-                    neighbour.GScore = tentativeGscore;
-                    neighbour.FScore = neighbour.GScore + neighbour.Coord.distance(start);
-                    if (!openSet.Contains(neighbour)) {
-                        openSet.Add(neighbour);
+                bool solid = false;
+                foreach (KeyValuePair<string, Entity> kvp in worldState.GetEntitiesAt(neighbour.Coord.X, neighbour.Coord.Y)) {
+                    if (kvp.Value.Solid) {
+                        solid = true;
+                        break;
+                    }
+                }
+
+                if (!solid) {
+                    float tentativeGscore = current.GScore + 1;
+                    if (tentativeGscore < neighbour.GScore) {
+                        neighbour.CameFrom = current;
+                        neighbour.GScore = tentativeGscore;
+                        neighbour.FScore = neighbour.GScore + neighbour.Coord.distance(start);
+                        if (!openSet.Contains(neighbour)) {
+                            openSet.Add(neighbour);
+                        }
                     }
                 }
             }

@@ -7,6 +7,7 @@ public abstract class Entity {
     protected int _x = 0;                         public int X {get{return _x;}}
     protected int _y = 0;                         public int Y {get{return _y;}}
     protected bool _solid = true;                 public bool Solid {get{return _solid;}}
+    public WorldState AttachedWorldState;
 
     public Entity (string name, int x, int y, bool solid) {
         _name = name;
@@ -19,7 +20,7 @@ public abstract class Entity {
         _name = from._name;
         _x = from._x;
         _y = from._y;
-        _solid = Solid;
+        _solid = from.Solid;
     }
 
     public Coord GetCoord () {
