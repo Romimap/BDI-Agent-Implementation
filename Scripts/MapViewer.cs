@@ -11,6 +11,7 @@ public class MapViewer : Spatial
 
     private List<List<Dictionary<string, Spatial>>> visibleInstances;
     private List<List<Dictionary<string, Spatial>>> invisibleInstances;
+    private Dictionary<string, Spatial> agentInstances;
 
     private static MapViewer singletonInstance;
 
@@ -41,6 +42,7 @@ public class MapViewer : Spatial
 
         visibleInstances = new List<List<Dictionary<string, Spatial>>>();
         invisibleInstances = new List<List<Dictionary<string, Spatial>>>();
+        agentInstances = new Dictionary<string, Spatial>();
 
         InitCamera();
         InitMap();
@@ -95,7 +97,15 @@ public class MapViewer : Spatial
                         Spatial invisibleInstance = null;
                         Vector3 rotation = new Vector3(0, 0, 0);
 
-                        if (entity is Floor)
+                        if (entity is Agent)
+                        {
+                            Spatial agentInstance = (Spatial)AGENT.Instance();
+
+                            MoveInstance(agentInstance, new Vector3(x, 0, y), rotation);
+                            _visibleMap.AddChild(agentInstance);
+                            agentInstances.Add(entity.Name, agentInstance);
+                        }
+                        else if (entity is Floor)
                         {
                             visibleInstance = (Spatial)FLOOR.Instance();
                             invisibleInstance = (Spatial)FLOOR_GHOST.Instance();
@@ -104,10 +114,6 @@ public class MapViewer : Spatial
                         {
                             visibleInstance = (Spatial)WALL.Instance();
                             invisibleInstance = (Spatial)WALL_GHOST.Instance();
-                        }
-                        else if (entity is Agent)
-                        {
-                            visibleInstance = (Spatial)AGENT.Instance();
                         }
                         else if (entity is Door)
                         {
@@ -217,10 +223,26 @@ public class MapViewer : Spatial
         }
     }
 
+    private void ChangeAgentVisualPos(Agent agent)
+    {
+        foreach (KeyValuePair<string, Spatial> kvp in agentInstances)
+        {
+            string agentName = kvp.Key;
+            if (agent.Name == agentName)
+            {
+                Spatial agentInstance = kvp.Value;
+                agentInstance.Translation = new Vector3(agent.X, agentInstance.Translation.y, agent.Y);
+            }
+        }
+    }
+
     public static void ChangeVisibility(Agent agent)
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
+
+        MapViewer MV = MapViewer.singletonInstance;
+        MV.ChangeAgentVisualPos(agent);
 
         int minX = Math.Max(agent.X - agent.VisionRange, 0);
         int maxX = Math.Min(agent.X + agent.VisionRange, WorldState.RealWorld.Width - 1);
@@ -228,7 +250,6 @@ public class MapViewer : Spatial
         int minY = Math.Max(agent.Y - agent.VisionRange, 0);
         int maxY = Math.Min(agent.Y + agent.VisionRange, WorldState.RealWorld.Height - 1);
 
-        MapViewer MV = MapViewer.singletonInstance;
         for (int x = minX; x <= maxX; x++)
         {
             for (int y = minY; y <= maxY; y++)
