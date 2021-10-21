@@ -33,7 +33,7 @@ public class Main : Spatial {
 			WorldState.RealWorld.Tick();
 			foreach (KeyValuePair<string, Agent> kvp in WorldState.RealWorld.Agents) {
 				GD.Print(kvp.Value.PrintBeliefs());
-				mapViewer.DisplayMap(kvp.Value.Beliefs);
+				mapViewer.UpdateWith(kvp.Value.Beliefs);
 			}
 		}
 	}

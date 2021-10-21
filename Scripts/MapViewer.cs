@@ -13,7 +13,7 @@ public class MapViewer : Spatial
 
     private WorldState _beliefs;
 
-    private List<List<List<Spatial>>> instances;
+    // private List<List<List<Spatial>>> instances;
 
     // Godot map entities prefabs
     private static PackedScene AGENT = (PackedScene)ResourceLoader.Load("res://Entities/Agent.tscn");
@@ -65,6 +65,9 @@ public class MapViewer : Spatial
         _invisibleMap = _startingInvisibleMap;
         _beliefs = beliefs;
 
+        GD.Print("Visible map childs: " + _visibleMap.GetChildCount());
+        GD.Print("Invisible map childs: " + _invisibleMap.GetChildCount());
+
         Spatial instance = null;
         int width = WorldState.RealWorld.Width;
         int height = WorldState.RealWorld.Height;
@@ -97,13 +100,13 @@ public class MapViewer : Spatial
                         else if (entity is Door)
                         {
                             Door door = (Door)entity;
-                            if (door.IsOpen)
+                            if (door.Solid)
                             {
-                                instance = (Spatial)DOOR_OPEN.Instance();
+                                instance = (Spatial)DOOR.Instance();
                             }
                             else
                             {
-                                instance = (Spatial)DOOR.Instance();
+                                instance = (Spatial)DOOR_OPEN.Instance();
                             }
 
                             if (DoorShouldBeRotated(x, y))
@@ -147,13 +150,13 @@ public class MapViewer : Spatial
                             else if (entity is Door)
                             {
                                 Door door = (Door)entity;
-                                if (door.IsOpen)
+                                if (door.Solid)
                                 {
-                                    instance = (Spatial)DOOR_OPEN_GHOST.Instance();
+                                    instance = (Spatial)DOOR_GHOST.Instance();
                                 }
                                 else
                                 {
-                                    instance = (Spatial)DOOR_GHOST.Instance();
+                                    instance = (Spatial)DOOR_OPEN_GHOST.Instance();
                                 }
 
                                 if (DoorShouldBeRotated(x, y))
