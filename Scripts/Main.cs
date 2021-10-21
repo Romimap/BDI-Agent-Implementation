@@ -32,8 +32,9 @@ public class Main : Spatial {
 			timer += 1;
 			WorldState.RealWorld.Tick();
 			foreach (KeyValuePair<string, Agent> kvp in WorldState.RealWorld.Agents) {
-				GD.Print(kvp.Value.PrintBeliefs());
-				mapViewer.UpdateWith(kvp.Value.Beliefs);
+				Agent agent = kvp.Value;
+				GD.Print(agent.PrintBeliefs());
+				MapViewer.ChangeVisibility(agent.X, agent.Y, 1);
 			}
 		}
 	}

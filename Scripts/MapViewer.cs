@@ -8,12 +8,10 @@ public class MapViewer : Spatial
     private Spatial _invisibleMap;
     private Camera _camera;
 
-    private Spatial _startingVisibleMap;
-    private Spatial _startingInvisibleMap;
+    private List<List<Dictionary<string, Spatial>>> visibleInstances;
+    private List<List<Dictionary<string, Spatial>>> invisibleInstances;
 
-    private WorldState _beliefs;
-
-    // private List<List<List<Spatial>>> instances;
+    private static MapViewer singletonInstance;
 
     // Godot map entities prefabs
     private static PackedScene AGENT = (PackedScene)ResourceLoader.Load("res://Entities/Agent.tscn");
@@ -33,14 +31,20 @@ public class MapViewer : Spatial
 
     public MapViewer(Node visibleMap, Node invisibleMap, Node camera)
     {
-        _startingVisibleMap = (Spatial)visibleMap;
-        _startingInvisibleMap = (Spatial)invisibleMap;
+        _visibleMap = (Spatial)visibleMap;
+        _invisibleMap = (Spatial)invisibleMap;
         _camera = (Camera)camera;
 
+        visibleInstances = new List<List<Dictionary<string, Spatial>>>();
+        invisibleInstances = new List<List<Dictionary<string, Spatial>>>();
+
         InitCamera();
+        InitMap();
+
+        singletonInstance = this;
     }
 
-    public void InitCamera()
+    private void InitCamera()
     {
         int mapWidth = WorldState.RealWorld.Width;
         int mapHeight = WorldState.RealWorld.Height;
@@ -59,123 +63,86 @@ public class MapViewer : Spatial
         _camera.Transform = transform;
     }
 
-    public void UpdateWith(WorldState beliefs)
+    private void InitMap()
     {
-        _visibleMap = _startingVisibleMap;
-        _invisibleMap = _startingInvisibleMap;
-        _beliefs = beliefs;
-
-        GD.Print("Visible map childs: " + _visibleMap.GetChildCount());
-        GD.Print("Invisible map childs: " + _invisibleMap.GetChildCount());
-
-        Spatial instance = null;
         int width = WorldState.RealWorld.Width;
         int height = WorldState.RealWorld.Height;
 
         for (int x = 0; x < width; x++)
         {
+            visibleInstances.Add(new List<Dictionary<string, Spatial>>());
+            invisibleInstances.Add(new List<Dictionary<string, Spatial>>());
+
             for (int y = 0; y < height; y++)
             {
-                Dictionary<string, Entity> entities = beliefs.GetEntitiesAt(x, y);
+                visibleInstances[x].Add(new Dictionary<string, Spatial>());
+                invisibleInstances[x].Add(new Dictionary<string, Spatial>());
+
+                Dictionary<string, Entity> entities = WorldState.RealWorld.GetEntitiesAt(x, y);
                 if (entities != null && entities.Count != 0) // Draw normal objects (known world)
                 {
                     foreach (KeyValuePair<string, Entity> kvp in entities)
                     {
                         Entity entity = kvp.Value;
-                        instance = null;
+                        Spatial visibleInstance = null;
+                        Spatial invisibleInstance = null;
                         Vector3 rotation = new Vector3(0, 0, 0);
 
                         if (entity is Floor)
                         {
-                            instance = (Spatial)FLOOR.Instance();
+                            visibleInstance = (Spatial)FLOOR.Instance();
+                            invisibleInstance = (Spatial)FLOOR_GHOST.Instance();
                         }
                         else if (entity is Wall)
                         {
-                            instance = (Spatial)WALL.Instance();
+                            visibleInstance = (Spatial)WALL.Instance();
+                            invisibleInstance = (Spatial)WALL_GHOST.Instance();
                         }
                         else if (entity is Agent)
                         {
-                            instance = (Spatial)AGENT.Instance();
+                            visibleInstance = (Spatial)AGENT.Instance();
                         }
                         else if (entity is Door)
                         {
-                            Door door = (Door)entity;
-                            if (door.Solid)
+                            if (entity.Solid)
                             {
-                                instance = (Spatial)DOOR.Instance();
+                                visibleInstance = (Spatial)DOOR.Instance();
+                                invisibleInstance = (Spatial)DOOR_GHOST.Instance();
                             }
                             else
                             {
-                                instance = (Spatial)DOOR_OPEN.Instance();
+                                visibleInstance = (Spatial)DOOR_OPEN.Instance();
+                                invisibleInstance = (Spatial)DOOR_OPEN_GHOST.Instance();
                             }
 
                             if (DoorShouldBeRotated(x, y))
+                            {
                                 rotation.y = Mathf.Pi / 2.0f;
+                            }
                         }
                         else if (entity is Package)
                         {
-                            instance = (Spatial)PACKAGE.Instance();
+                            visibleInstance = (Spatial)PACKAGE.Instance();
+                            invisibleInstance = (Spatial)PACKAGE_GHOST.Instance();
                         }
                         else if (entity is DeliverySpot)
                         {
-                            instance = (Spatial)DELIVERY_SPOT.Instance();
+                            visibleInstance = (Spatial)DELIVERY_SPOT.Instance();
+                            invisibleInstance = (Spatial)DELIVERY_SPOT_GHOST.Instance();
                         }
 
-                        if (instance != null)
+                        if (visibleInstance != null)
                         {
-                            MoveInstance(instance, new Vector3(x, 0, y), rotation);
-                            _visibleMap.AddChild(instance);
-                        }
-                    }
-                }
-                else // Draw ghost objects (unknown world)
-                {
-                    entities = WorldState.RealWorld.GetEntitiesAt(x, y);
-                    if (entities != null)
-                    {
-                        foreach (KeyValuePair<string, Entity> kvp in entities)
-                        {
-                            Entity entity = kvp.Value;
-                            instance = null;
-                            Vector3 rotation = new Vector3(0, 0, 0);
+                            visibleInstance.Visible = false;
 
-                            if (entity is Floor)
-                            {
-                                instance = (Spatial)FLOOR_GHOST.Instance();
-                            }
-                            else if (entity is Wall)
-                            {
-                                instance = (Spatial)WALL_GHOST.Instance();
-                            }
-                            else if (entity is Door)
-                            {
-                                Door door = (Door)entity;
-                                if (door.Solid)
-                                {
-                                    instance = (Spatial)DOOR_GHOST.Instance();
-                                }
-                                else
-                                {
-                                    instance = (Spatial)DOOR_OPEN_GHOST.Instance();
-                                }
+                            MoveInstance(visibleInstance, new Vector3(x, 0, y), rotation);
+                            MoveInstance(invisibleInstance, new Vector3(x, 0, y), rotation);
 
-                                if (DoorShouldBeRotated(x, y))
-                                    rotation.y = Mathf.Pi / 2.0f;
-                            }
-                            else if (entity is Package)
-                            {
-                                instance = (Spatial)PACKAGE_GHOST.Instance();
-                            }
-                            else if (entity is DeliverySpot)
-                            {
-                                instance = (Spatial)DELIVERY_SPOT_GHOST.Instance();
-                            }
+                            _visibleMap.AddChild(visibleInstance);
+                            _invisibleMap.AddChild(invisibleInstance);
 
-                            if (instance != null)
-                            {
-                                MoveInstance(instance, new Vector3(x, 0, y), rotation);
-                                _invisibleMap.AddChild(instance);
-                            }
+                            visibleInstances[x][y].Add(entity.Name, visibleInstance);
+                            invisibleInstances[x][y].Add(entity.Name, invisibleInstance);
                         }
                     }
                 }
@@ -222,5 +189,39 @@ public class MapViewer : Spatial
             return false;
 
         return true;
+    }
+
+    private void ChangeVisibility(int x, int y)
+    {
+
+        Dictionary<string, Spatial> invisibleEntities = invisibleInstances[x][y];
+        foreach (KeyValuePair<string, Spatial> kvp in invisibleEntities)
+        {
+            Spatial instance = kvp.Value;
+            instance.Visible = false;
+        }
+
+        Dictionary<string, Spatial> visibleEntities = visibleInstances[x][y];
+        foreach (KeyValuePair<string, Spatial> kvp in visibleEntities)
+        {
+            Spatial instance = kvp.Value;
+            instance.Visible = true;
+        }
+    }
+
+    public static void ChangeVisibility(int fromX, int fromY, int visibilityRange)
+    {
+        int minX = Math.Max(fromX - visibilityRange, 0);
+        int maxX = Math.Min(fromX + visibilityRange, WorldState.RealWorld.Width - 1);
+
+        int minY = Math.Max(fromY - visibilityRange, 0);
+        int maxY = Math.Min(fromY + visibilityRange, WorldState.RealWorld.Height - 1);
+
+        MapViewer MV = MapViewer.singletonInstance;
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                MV.ChangeVisibility(x, y);
+            }
+        }
     }
 }
