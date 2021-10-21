@@ -178,7 +178,7 @@ public class WorldState {
         foreach(Coord coord in path) {
             foreach(KeyValuePair<string, Entity> kvp in _map[coord.X][coord.Y]) {
                 if (kvp.Value.Solid) {
-                    GD.Print("OBSTRUCTED : " + kvp.Value.Name + " " + coord.X + ", " + coord.Y);
+                    // GD.Print("OBSTRUCTED : " + kvp.Value.Name + " " + coord.X + ", " + coord.Y);
                     return true;   
                 }
             }

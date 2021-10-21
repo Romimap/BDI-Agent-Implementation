@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class MapViewer : Spatial
 {
@@ -31,6 +32,9 @@ public class MapViewer : Spatial
 
     public MapViewer(Node visibleMap, Node invisibleMap, Node camera)
     {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
         _visibleMap = (Spatial)visibleMap;
         _invisibleMap = (Spatial)invisibleMap;
         _camera = (Camera)camera;
@@ -42,6 +46,9 @@ public class MapViewer : Spatial
         InitMap();
 
         singletonInstance = this;
+
+        stopwatch.Stop();
+        Console.WriteLine("MapViewer creation done in: " + (stopwatch.ElapsedMilliseconds / 1000.0f) + "s");
     }
 
     private void InitCamera()
@@ -136,12 +143,13 @@ public class MapViewer : Spatial
                             visibleInstance.Visible = false;
 
                             MoveInstance(visibleInstance, new Vector3(x, 0, y), rotation);
-                            MoveInstance(invisibleInstance, new Vector3(x, 0, y), rotation);
-
                             _visibleMap.AddChild(visibleInstance);
-                            _invisibleMap.AddChild(invisibleInstance);
-
                             visibleInstances[x][y].Add(entity.Name, visibleInstance);
+                        }
+                        if (invisibleInstance != null)
+                        {
+                            MoveInstance(invisibleInstance, new Vector3(x, 0, y), rotation);
+                            _invisibleMap.AddChild(invisibleInstance);
                             invisibleInstances[x][y].Add(entity.Name, invisibleInstance);
                         }
                     }
@@ -209,19 +217,27 @@ public class MapViewer : Spatial
         }
     }
 
-    public static void ChangeVisibility(int fromX, int fromY, int visibilityRange)
+    public static void ChangeVisibility(Agent agent)
     {
-        int minX = Math.Max(fromX - visibilityRange, 0);
-        int maxX = Math.Min(fromX + visibilityRange, WorldState.RealWorld.Width - 1);
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
 
-        int minY = Math.Max(fromY - visibilityRange, 0);
-        int maxY = Math.Min(fromY + visibilityRange, WorldState.RealWorld.Height - 1);
+        int minX = Math.Max(agent.X - agent.VisionRange, 0);
+        int maxX = Math.Min(agent.X + agent.VisionRange, WorldState.RealWorld.Width - 1);
+
+        int minY = Math.Max(agent.Y - agent.VisionRange, 0);
+        int maxY = Math.Min(agent.Y + agent.VisionRange, WorldState.RealWorld.Height - 1);
 
         MapViewer MV = MapViewer.singletonInstance;
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
+        for (int x = minX; x <= maxX; x++)
+        {
+            for (int y = minY; y <= maxY; y++)
+            {
                 MV.ChangeVisibility(x, y);
             }
         }
+
+        stopwatch.Stop();
+        Console.WriteLine("MapViewer update done in: " + (stopwatch.ElapsedMilliseconds / 1000.0f) + "s");
     }
 }

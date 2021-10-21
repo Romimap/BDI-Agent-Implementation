@@ -4,7 +4,7 @@ using Godot;
 
 public class Agent : Entity {
     Random random = new Random();
-    private int _visionRange = 1;
+    private int _visionRange = 1;                       public int VisionRange {get {return _visionRange;}}
     private int _deltaBeliefTreshold = 1000;
     
     private WorldState _beliefs = null;                 public WorldState Beliefs {get {return _beliefs;}}
@@ -27,17 +27,17 @@ public class Agent : Entity {
     }
 
     public void Init () {
-        GD.Print("INIT AGENT");
+        // GD.Print("INIT AGENT");
         _beliefs = WorldState.DefaultBelief();
     }
 
     public void Tick () {
-        GD.Print("TICK AGENT");
+        // GD.Print("TICK AGENT");
         //Percept
         int deltaBeliefs = _beliefs.AddPercept(WorldState.RealWorld.Percept(X, Y, _visionRange));
         deltaBeliefs += _beliefs.AddPercept(WorldState.RealWorld.Percept(6, 7, _visionRange));
 
-        GD.Print(PrintBeliefs());
+        // GD.Print(PrintBeliefs());
 
         //process desires
         if (_currentDesire == null || deltaBeliefs > _deltaBeliefTreshold) {
@@ -53,7 +53,7 @@ public class Agent : Entity {
 
         //if we are walking, we walk 
         foreach(Action a in _intentions) {
-            GD.Print("i will " + a);
+            // GD.Print("i will " + a);
         }
         
         
@@ -63,11 +63,11 @@ public class Agent : Entity {
                     _currentDesire = null;
                     _intentions = new List<Action>();
 
-                    GD.Print("OBSTRUCTED");
+                    // GD.Print("OBSTRUCTED");
 
             } else { //Walk
                 Coord newCord = WorldState.RealWorld.Move(this, _currentPath[0]);
-                GD.Print("WALK TO " + newCord.X + ", " + newCord.Y);
+                // GD.Print("WALK TO " + newCord.X + ", " + newCord.Y);
                 _beliefs.Move(this, newCord);
                 _currentPath.RemoveAt(0);
             }
