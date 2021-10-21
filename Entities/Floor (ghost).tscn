@@ -1,24 +1,10 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
-[sub_resource type="PlaneMesh" id=1]
+[ext_resource path="res://Materials/Floor ghost material.tres" type="Material" id=1]
+
+[sub_resource type="PlaneMesh" id=3]
+material = ExtResource( 1 )
 size = Vector2( 1, 1 )
 
-[sub_resource type="Shader" id=2]
-code = "shader_type spatial;
-
-void vertex() {
-	vec3 p = VERTEX;
-	p.y += sin(TIME + (p.x + p.z) / 2.0) / 2.0;
-	VERTEX = p;
-}
-
-void fragment() {
-	ALPHA = 0.2;
-}"
-
-[sub_resource type="ShaderMaterial" id=3]
-shader = SubResource( 2 )
-
 [node name="Floor (ghost)" type="CSGMesh"]
-mesh = SubResource( 1 )
-material = SubResource( 3 )
+mesh = SubResource( 3 )

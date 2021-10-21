@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="SpatialMaterial" id=1]
+albedo_color = Color( 0, 0.937255, 0.101961, 1 )
+
+[node name="Delivery spot" type="CSGBox"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0 )
+width = 0.8
+height = 0.1
+depth = 0.8
+material = SubResource( 1 )

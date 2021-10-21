@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Materials/Door ghost material (gray).tres" type="Material" id=1]
+[ext_resource path="res://Materials/Door ghost material (blue).tres" type="Material" id=2]
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 0.5, 0.9, 0.05 )
+
+[sub_resource type="CubeMesh" id=2]
+size = Vector3( 0.02, 0.9, 0.06 )
+
+[node name="Door (ghost)" type="CSGCombiner"]
+
+[node name="DoorLeft" type="CSGMesh" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.45, 0 )
+mesh = SubResource( 1 )
+material = ExtResource( 2 )
+
+[node name="CSGMesh" type="CSGMesh" parent="DoorLeft"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24, 0, 0 )
+mesh = SubResource( 2 )
+material = ExtResource( 1 )
+
+[node name="DoorRight" type="CSGMesh" parent="."]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -0.25, 0.45, 0 )
+mesh = SubResource( 1 )
+material = ExtResource( 2 )
+
+[node name="CSGMesh" type="CSGMesh" parent="DoorRight"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24, 0, 0 )
+mesh = SubResource( 2 )
+material = ExtResource( 1 )
