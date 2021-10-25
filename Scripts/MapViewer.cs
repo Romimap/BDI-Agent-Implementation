@@ -9,11 +9,11 @@ public class MapViewer : Spatial
     private Spatial _invisibleMap;
     private Camera _camera;
 
-    private List<List<Dictionary<string, Spatial>>> visibleInstances;
-    private List<List<Dictionary<string, Spatial>>> invisibleInstances;
-    private Dictionary<string, Spatial> agentInstances;
+    private List<List<Dictionary<string, Spatial>>> _visibleInstances;
+    private List<List<Dictionary<string, Spatial>>> _invisibleInstances;
+    private Dictionary<string, Spatial> _agentInstances;
 
-    private static MapViewer singletonInstance;
+    private static MapViewer _singletonInstance;
 
     // Godot map entities prefabs
     private static PackedScene AGENT = (PackedScene)ResourceLoader.Load("res://Entities/Agent.tscn");
@@ -40,14 +40,14 @@ public class MapViewer : Spatial
         _invisibleMap = (Spatial)invisibleMap;
         _camera = (Camera)camera;
 
-        visibleInstances = new List<List<Dictionary<string, Spatial>>>();
-        invisibleInstances = new List<List<Dictionary<string, Spatial>>>();
-        agentInstances = new Dictionary<string, Spatial>();
+        _visibleInstances = new List<List<Dictionary<string, Spatial>>>();
+        _invisibleInstances = new List<List<Dictionary<string, Spatial>>>();
+        _agentInstances = new Dictionary<string, Spatial>();
 
         InitCamera();
         InitMap();
 
-        singletonInstance = this;
+        _singletonInstance = this;
 
         stopwatch.Stop();
         Console.WriteLine("MapViewer creation done in: " + (stopwatch.ElapsedMilliseconds / 1000.0f) + "s");
@@ -79,13 +79,13 @@ public class MapViewer : Spatial
 
         for (int x = 0; x < width; x++)
         {
-            visibleInstances.Add(new List<Dictionary<string, Spatial>>());
-            invisibleInstances.Add(new List<Dictionary<string, Spatial>>());
+            _visibleInstances.Add(new List<Dictionary<string, Spatial>>());
+            _invisibleInstances.Add(new List<Dictionary<string, Spatial>>());
 
             for (int y = 0; y < height; y++)
             {
-                visibleInstances[x].Add(new Dictionary<string, Spatial>());
-                invisibleInstances[x].Add(new Dictionary<string, Spatial>());
+                _visibleInstances[x].Add(new Dictionary<string, Spatial>());
+                _invisibleInstances[x].Add(new Dictionary<string, Spatial>());
 
                 Dictionary<string, Entity> entities = WorldState.RealWorld.GetEntitiesAt(x, y);
                 if (entities != null && entities.Count != 0) // Draw normal objects (known world)
@@ -103,7 +103,29 @@ public class MapViewer : Spatial
 
                             MoveInstance(agentInstance, new Vector3(x, 0, y), rotation);
                             _visibleMap.AddChild(agentInstance);
-                            agentInstances.Add(entity.Name, agentInstance);
+                            _agentInstances.Add(entity.Name, agentInstance);
+                        }
+                        else if (entity is Door)
+                        {
+                            if (DoorShouldBeRotated(x, y))
+                            {
+                                rotation.y = Mathf.Pi / 2.0f;
+                            }
+
+                            Spatial instance = (Spatial)DOOR.Instance();
+                            instance.Visible = false;
+                            MoveAndAdd(instance, entity.Name, x, y, rotation, _visibleMap, _visibleInstances);
+
+                            instance = (Spatial)DOOR_OPEN.Instance();
+                            instance.Visible = false;
+                            MoveAndAdd(instance, entity.Name + ";open", x, y, rotation, _visibleMap, _visibleInstances);
+
+                            instance = (Spatial)DOOR_GHOST.Instance();
+                            MoveAndAdd(instance, entity.Name, x, y, rotation, _invisibleMap, _invisibleInstances);
+
+                            instance = (Spatial)DOOR_OPEN_GHOST.Instance();
+                            instance.Visible = false;
+                            MoveAndAdd(instance, entity.Name + ";open", x, y, rotation, _invisibleMap, _invisibleInstances);
                         }
                         else if (entity is Floor)
                         {
@@ -114,24 +136,6 @@ public class MapViewer : Spatial
                         {
                             visibleInstance = (Spatial)WALL.Instance();
                             invisibleInstance = (Spatial)WALL_GHOST.Instance();
-                        }
-                        else if (entity is Door)
-                        {
-                            if (entity.Solid)
-                            {
-                                visibleInstance = (Spatial)DOOR.Instance();
-                                invisibleInstance = (Spatial)DOOR_GHOST.Instance();
-                            }
-                            else
-                            {
-                                visibleInstance = (Spatial)DOOR_OPEN.Instance();
-                                invisibleInstance = (Spatial)DOOR_OPEN_GHOST.Instance();
-                            }
-
-                            if (DoorShouldBeRotated(x, y))
-                            {
-                                rotation.y = Mathf.Pi / 2.0f;
-                            }
                         }
                         else if (entity is Package)
                         {
@@ -150,18 +154,25 @@ public class MapViewer : Spatial
 
                             MoveInstance(visibleInstance, new Vector3(x, 0, y), rotation);
                             _visibleMap.AddChild(visibleInstance);
-                            visibleInstances[x][y].Add(entity.Name, visibleInstance);
+                            _visibleInstances[x][y].Add(entity.Name, visibleInstance);
                         }
                         if (invisibleInstance != null)
                         {
                             MoveInstance(invisibleInstance, new Vector3(x, 0, y), rotation);
                             _invisibleMap.AddChild(invisibleInstance);
-                            invisibleInstances[x][y].Add(entity.Name, invisibleInstance);
+                            _invisibleInstances[x][y].Add(entity.Name, invisibleInstance);
                         }
                     }
                 }
             }
         }
+    }
+
+    private void MoveAndAdd(Spatial instance, string name, int x, int y, Vector3 rotation, Spatial map, List<List<Dictionary<string, Spatial>>> instances)
+    {
+        MoveInstance(instance, new Vector3(x, 0, y), rotation);
+        map.AddChild(instance);
+        instances[x][y].Add(name, instance);
     }
 
     private void MoveInstance(Spatial instance, Vector3 translation, Vector3 rotation)
@@ -207,25 +218,65 @@ public class MapViewer : Spatial
 
     private void ChangeVisibility(int x, int y)
     {
-
-        Dictionary<string, Spatial> invisibleEntities = invisibleInstances[x][y];
+        Dictionary<string, Spatial> invisibleEntities = _invisibleInstances[x][y];
         foreach (KeyValuePair<string, Spatial> kvp in invisibleEntities)
         {
             Spatial instance = kvp.Value;
             instance.Visible = false;
         }
 
-        Dictionary<string, Spatial> visibleEntities = visibleInstances[x][y];
+        Dictionary<string, Spatial> visibleEntities = _visibleInstances[x][y];
         foreach (KeyValuePair<string, Spatial> kvp in visibleEntities)
         {
+            string instanceName = kvp.Key;
             Spatial instance = kvp.Value;
             instance.Visible = true;
+
+            if (instanceName.Contains("Door"))
+            {
+                OpenCloseVisualDoor(instanceName, instance, x, y);
+            }
+        }
+    }
+
+    private void OpenCloseVisualDoor(string instanceName, Spatial instance, int x, int y)
+    {
+        foreach (KeyValuePair<string, Entity> kvp2 in WorldState.RealWorld.GetEntitiesAt(x, y))
+        {
+            string entityName = kvp2.Key;
+            Entity entity = kvp2.Value;
+
+            if (entityName.Contains("Door"))
+            {
+                if (entity.Solid)
+                {
+                    if (instanceName.Contains("open"))
+                    {
+                        instance.Visible = false;
+                    }
+                    else
+                    {
+                        instance.Visible = true;
+                    }
+                }
+                else
+                {
+                    if (instanceName.Contains("open"))
+                    {
+                        instance.Visible = true;
+                    }
+                    else
+                    {
+                        instance.Visible = false;
+                    }
+                }
+            }
         }
     }
 
     private void ChangeAgentVisualPos(Agent agent)
     {
-        foreach (KeyValuePair<string, Spatial> kvp in agentInstances)
+        foreach (KeyValuePair<string, Spatial> kvp in _agentInstances)
         {
             string agentName = kvp.Key;
             if (agent.Name == agentName) {
@@ -240,7 +291,7 @@ public class MapViewer : Spatial
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        MapViewer MV = MapViewer.singletonInstance;
+        MapViewer MV = MapViewer._singletonInstance;
         MV.ChangeAgentVisualPos(agent);
 
         int minX = Math.Max(agent.X - agent.VisionRange, 0);
@@ -258,6 +309,6 @@ public class MapViewer : Spatial
         }
 
         stopwatch.Stop();
-        Console.WriteLine("MapViewer update done in: " + (stopwatch.ElapsedMilliseconds / 1000.0f) + "s");
+        Console.WriteLine("MapViewer update done in: " + stopwatch.ElapsedMilliseconds + "ms");
     }
 }
