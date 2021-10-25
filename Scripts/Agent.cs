@@ -35,9 +35,16 @@ public class Agent : Entity {
         // GD.Print("TICK AGENT");
         //Percept
         int deltaBeliefs = _beliefs.AddPercept(WorldState.RealWorld.Percept(X, Y, _visionRange));
-        deltaBeliefs += _beliefs.AddPercept(WorldState.RealWorld.Percept(6, 7, _visionRange));
+        deltaBeliefs += _beliefs.AddPercept(WorldState.RealWorld.Percept(2, 13, _visionRange));
 
         // GD.Print(PrintBeliefs());
+
+        //Check if the path is obstructed --> reevaluate desires / intentions
+        if (_currentPath.Count > 0 && _beliefs.PathObstructed(_currentPath)) { 
+            _currentPath = new List<Coord>();
+            _currentDesire = null;
+            _intentions = new List<Action>();
+        }
 
         //process desires
         if (_currentDesire == null || deltaBeliefs > _deltaBeliefTreshold) {
@@ -47,39 +54,30 @@ public class Agent : Entity {
 
         //process intentions
         if (_intentions.Count == 0 || deltaBeliefs > _deltaBeliefTreshold) {
-            _intentions = MakePlans(5, 5, 5, 2, .8f);
+            _intentions = MakePlans(15, 4);
+        }
+
+        //Check if we need a path
+        if (_currentPath.Count == 0 && _intentions.Count > 0) {
             _currentPath = _beliefs.PathFind(this, _intentions[0]);
-        }
-
-        //if we are walking, we walk 
-        foreach(Action a in _intentions) {
-            // GD.Print("i will " + a);
-        }
-        
-        
-        if (_currentPath.Count > 0) {
-            if (_beliefs.PathObstructed(_currentPath)) { //Check if the path is obstructed --> reevaluate desires / intentions
-                    _currentPath = new List<Coord>();
-                    _currentDesire = null;
-                    _intentions = new List<Action>();
-
-                    // GD.Print("OBSTRUCTED");
-
-            } else { //Walk
-                Coord newCord = WorldState.RealWorld.Move(this, _currentPath[0]);
-                // GD.Print("WALK TO " + newCord.X + ", " + newCord.Y);
-                _beliefs.Move(this, newCord);
+            if (_currentPath.Count > 0) {
                 _currentPath.RemoveAt(0);
             }
-        } else if (_intentions.Count > 0) {
-            //do our action
+        }
+
+        //Walk
+        if (_currentPath.Count > 0) {
+            Coord newCord = WorldState.RealWorld.Move(this, _currentPath[0]);
+            _beliefs.Move(this, newCord);
+            _currentPath.RemoveAt(0);
+        } else if (_intentions.Count > 0) { //Or do our action
             WorldState.RealWorld.Do(this, _intentions[0]);
             _intentions.RemoveAt(0);
+        }
 
-            //Process a new path
-            if (_intentions.Count > 0) {
-                _beliefs.PathFind(this, _intentions[0]);
-            }
+        Main.richTextLabel.Text = "";
+        foreach(Action a in _intentions) {
+            Main.richTextLabel.Text += a + "\n";
         }
     }
 
@@ -98,81 +96,108 @@ public class Agent : Entity {
         }
     }
 
-    public List<Action> MakePlans (int maxCol, int maxTries, int maxMoves, float baseTemp, float alpha) {
-        List<Action> bestPlan = null;
-        float bestScore = float.MaxValue;
+    public struct MakePlanActionStruct {
+        public Action _action;
+        public WorldState _worldState;
+        public float _cost;
+
+        public MakePlanActionStruct(Action action, WorldState worldState, float cost) {
+            _action = action;
+            _worldState = worldState;
+            _cost = cost;
+        }
+    }
+
+    public List<Action> MakePlans (int maxTries, int maxMoves) {
+        List<List<MakePlanActionStruct>> allRuns = new List<List<MakePlanActionStruct>>();
+        GD.Print("\n\n\n\n\nGENERATING INTENTIONS !");
 
         for (int i = 0; i < maxTries; i++) {
-            WorldState x = Beliefs.Clone();
-            List<Action> plan = new List<Action>();
+            GD.Print("GENERATING PLAN !");
+            List<MakePlanActionStruct> plan = new List<MakePlanActionStruct>();
 
-            float temperature = baseTemp;
+            WorldState currentWorldState = _beliefs;
+
+            float totalCost = 0;
             for (int j = 0; j < maxMoves; j++) {
-
                 Action a;
                 WorldState xNext;
-                (xNext, a) = SimulatedAnhealingMove(x, maxCol, temperature);
+                float cost;
+                (xNext, a, cost) = GenerateMove(currentWorldState);
 
-                if (xNext != null) 
-                    //TODO: Free x
-                    x = xNext;
-                    plan.Add(a);
-                
-                temperature *= alpha;
+                if (xNext == null) break;
+
+                totalCost += cost;
+                plan.Add(new MakePlanActionStruct(a, xNext, totalCost));
             }
-            float xScore = _currentDesire.Score(x, this.Name);
-            if (xScore < bestScore) {
-                bestScore = xScore;
-                bestPlan = plan;
+
+            //Truncate the plan so it does not have doubles
+            int current = 1;
+            while (current < plan.Count) {
+                if (plan[current - 1]._action.ToString().Equals(plan[current]._action.ToString())) {
+                    plan.RemoveAt(current);
+                } else {
+                    current++;
+                }
             }
+
+            GD.Print("ONE PLAN IS TO : ");
+            foreach(MakePlanActionStruct makePlanAction in plan) {
+                GD.Print(makePlanAction._action);
+            }
+
+            allRuns.Add(plan);
+        }
+
+        //Get the best plan
+        float minimumScoreCost = float.PositiveInfinity;
+        int iMinimum = 0;
+        for (int i = 0; i < allRuns.Count; i++) {
+            int last = allRuns[i].Count - 1;
+            float score = _currentDesire.Score(allRuns[i][last]._worldState, Name) * allRuns[i][last]._cost;
+            GD.Print("x               " + allRuns[i][last]._action + "(" + score + ")");
+
+            if (score < minimumScoreCost) {
+                iMinimum = i;
+                minimumScoreCost = score;
+            }
+        }
+
+        //Make it a list
+        List<Action> bestPlan = new List<Action>();
+        foreach(MakePlanActionStruct makePlanAction in allRuns[iMinimum]) {
+            bestPlan.Add(makePlanAction._action);
+        }
+
+        GD.Print("INTENTIONS : ");
+        foreach(Action a in bestPlan) {
+            GD.Print(a);
         }
 
         return bestPlan;
     }
 
-    public (WorldState, Action) SimulatedAnhealingMove (WorldState currentWorldState, int maxCol, float temperature) {
-        float bestScore = float.MaxValue;
-        WorldState bestWorldState = currentWorldState;
-        Action bestAction = new Action(null, null);
-        bool accepted = false; //Accepted?(cur, x) : cost(x) ≤ cost(cur) or Random()< exp(−∆/T)
-        
+    public (WorldState, Action, float) GenerateMove (WorldState currentWorldState) {
         List<Action> rawAvailableActions = currentWorldState.GetActions();
         List<Action> availableActions = new List<Action>();
-        Dictionary<Action, int> availableActionsCost = new Dictionary<Action, int>();
+        GD.Print("  AVAILABLE : ");
         foreach(Action a in rawAvailableActions) {
             List<Coord> path = currentWorldState.PathFind(this, a);
             if (path != null) {
+                GD.Print("  " + a);
                 availableActions.Add(a);
-                availableActionsCost.Add(a, path.Count);
             }
         }
 
+        if (availableActions.Count == 0) return (null, new Action(null, null), float.PositiveInfinity);
 
+        WorldState next = currentWorldState.Clone();
 
-        if (availableActions.Count == 0) return (null, new Action(null, null));
+        Action action = availableActions[random.Next(availableActions.Count)];
+        GD.Print("  choosed to do " + action);
+        List<Coord> actionPath = next.Do(this, action);
 
-        for (int i = 0; i < maxCol; i++) {
-            Action randomAction = availableActions[random.Next(availableActions.Count)];
-            WorldState newWorldState = currentWorldState.Clone();
-            
-            if (newWorldState.Do(this, randomAction) != null) {//Generate-Neighbor
-                float newScore = _currentDesire.Score(newWorldState, this.Name);
-                float currentScore = _currentDesire.Score(currentWorldState, this.Name);
-
-                if (newScore <= currentScore || random.NextDouble() < Mathf.Exp(-(Mathf.Abs(newScore - currentScore)) / temperature)) {
-                    accepted = true;
-                }
-                if (newScore < bestScore) {
-                    //TODO, free bestWorldState
-                    bestWorldState = newWorldState;
-                    bestScore = newScore;
-                    bestAction = randomAction;
-                }
-            } 
-        }
-        
-        if (accepted) return (bestWorldState, bestAction);
-        else return (currentWorldState, new Action(null, null));
+        return (next, action, actionPath.Count);
     }
 
     public override Entity Clone () {

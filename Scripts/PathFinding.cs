@@ -69,6 +69,10 @@ public class PathFinding {
             foreach (Node neighbour in neighbours) {
                 bool solid = false;
                 foreach (KeyValuePair<string, Entity> kvp in worldState.GetEntitiesAt(neighbour.Coord.X, neighbour.Coord.Y)) {
+                    if (kvp.Value.X == end.X && kvp.Value.Y == end.Y) {
+                        solid = false;
+                        break;
+                    }
                     if (kvp.Value.Solid) {
                         solid = true;
                         break;

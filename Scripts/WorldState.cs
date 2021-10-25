@@ -260,6 +260,26 @@ public class WorldState {
                             deltaBeliefs++;
 
                         }
+                        if (_map[x][y].ContainsKey(kvp.Key)) { //Something changed
+                            Entity clone = kvp.Value.Clone();
+                            _map[x][y].Remove(clone.Name);
+                            _entities.Remove(clone.Name);
+                            if (clone is ActionEntity) {
+                                _actionEntities.Remove(clone.Name);
+                            }
+                            if (clone is Agent) {
+                                _agents.Remove(clone.Name);
+                            }
+                            
+                            _map[x][y].Add(clone.Name, clone);
+                            _entities.Add(clone.Name, clone);
+                            if (clone is ActionEntity) {
+                                _actionEntities.Add(clone.Name, (ActionEntity)clone);
+                            }
+                            if (clone is Agent) {
+                                _agents.Add(clone.Name, (Agent)clone);
+                            }
+                        }
                     }
 
                     //Something missing
