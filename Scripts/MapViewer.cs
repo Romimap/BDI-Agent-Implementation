@@ -228,10 +228,9 @@ public class MapViewer : Spatial
         foreach (KeyValuePair<string, Spatial> kvp in agentInstances)
         {
             string agentName = kvp.Key;
-            if (agent.Name == agentName)
-            {
+            if (agent.Name == agentName) {
                 Spatial agentInstance = kvp.Value;
-                agentInstance.Translation = new Vector3(agent.X, agentInstance.Translation.y, agent.Y);
+                (agentInstance as AgentNode).MoveTo(new Vector3(agent.X, agentInstance.Translation.y, agent.Y));
             }
         }
     }

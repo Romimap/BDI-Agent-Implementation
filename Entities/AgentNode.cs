@@ -12,20 +12,20 @@ public class AgentNode : Spatial
     public override void _Ready() {
         _from = GlobalTransform.origin;
         _to = _from;
-        _timer = 1;
+        _timer = 0f;
     }
 
     public void MoveTo (Vector3 position) {
         _from = GlobalTransform.origin;
         _to = position;
-        _timer = 0;
+        _timer = 0f;
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(float delta) {
-        _timer += delta;
+        _timer += delta * 2;
         float t = _animationCurve.Interpolate(_timer);
-        Vector3 p = _from * t + _to * (1 - t);
+        Vector3 p = _to * t + _from * (1 - t);
         Transform tmpTransform = GlobalTransform;
         tmpTransform.origin = p;
         GlobalTransform = tmpTransform;

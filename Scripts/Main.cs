@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class Main : Spatial {	
 	MapViewer mapViewer;
@@ -31,6 +32,8 @@ public class Main : Spatial {
 	public override void _Process(float delta) {
 		timer -= delta;
 		if (timer <= 0) {
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.Start();
 			timer += 0.5f;
 			WorldState.RealWorld.Tick();
 			foreach (KeyValuePair<string, Agent> kvp in WorldState.RealWorld.Agents) {
@@ -39,6 +42,8 @@ public class Main : Spatial {
 				GD.Print("Agent pos: (" + agent.X + ", " + agent.Y + ")");
 				MapViewer.ChangeVisibility(agent);
 			}
+			stopwatch.Stop();
+			GD.Print("Tick time : " + stopwatch.ElapsedMilliseconds + "ms");
 		}
 	}
 }
