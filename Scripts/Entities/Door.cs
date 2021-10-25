@@ -7,7 +7,7 @@ public class Door : ActionEntity {
     }
 
     public Door (Door from) : base (from) {
-        System.Console.WriteLine("CLONE " + from._name + " : " + from._solid);
+        //System.Console.WriteLine("CLONE " + from._name + " : " + from._solid);
     }
 
     public override Entity Clone() {
@@ -15,7 +15,7 @@ public class Door : ActionEntity {
     }
 
     public override void Do(Agent agent, Action action) {
-        System.Console.WriteLine("      xx        ." + action._actionName +".");
+        //System.Console.WriteLine("      xx        ." + action._actionName +".");
         if (action._actionName.Equals("open")) _solid = false;
         if (action._actionName.Equals("close")) _solid = true;        
     }

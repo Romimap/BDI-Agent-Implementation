@@ -6,6 +6,7 @@ public class Agent : Entity {
     Random random = new Random();
     private int _visionRange = 1;                       public int VisionRange {get {return _visionRange;}}
     private int _deltaBeliefTreshold = 1000;
+    private bool _generateIntentions = true;
     
     private WorldState _beliefs = null;                 public WorldState Beliefs {get {return _beliefs;}}
     private List<Desire> _desires = new List<Desire>();
@@ -43,7 +44,7 @@ public class Agent : Entity {
         if (_currentPath.Count > 0 && _beliefs.PathObstructed(_currentPath)) { 
             _currentPath = new List<Coord>();
             _currentDesire = null;
-            _intentions = new List<Action>();
+            _generateIntentions = true;
         }
 
         //process desires
@@ -53,8 +54,9 @@ public class Agent : Entity {
         }
 
         //process intentions
-        if (_intentions.Count == 0 || deltaBeliefs > _deltaBeliefTreshold) {
-            _intentions = MakePlans(15, 4);
+        if (_intentions.Count == 0 || _generateIntentions || deltaBeliefs > _deltaBeliefTreshold) {
+            _intentions = MakePlans(_intentions, 15, 4);
+            _generateIntentions = false;
         }
 
         //Check if we need a path
@@ -106,19 +108,22 @@ public class Agent : Entity {
             _worldState = worldState;
             _cost = cost;
         }
+
+        public void SetCost (float cost) {
+            _cost = cost;
+        }
     }
 
-    public List<Action> MakePlans (int maxTries, int maxMoves) {
+    public List<Action> MakePlans (List<Action> currentPlan, int maxTries, int maxMoves) {
         List<List<MakePlanActionStruct>> allRuns = new List<List<MakePlanActionStruct>>();
-        GD.Print("\n\n\n\n\nGENERATING INTENTIONS !");
+        //GD.Print("\n\n\n\n\nGENERATING INTENTIONS !");
 
         for (int i = 0; i < maxTries; i++) {
-            GD.Print("GENERATING PLAN !");
+            //GD.Print("GENERATING PLAN !");
             List<MakePlanActionStruct> plan = new List<MakePlanActionStruct>();
 
             WorldState currentWorldState = _beliefs;
 
-            float totalCost = 0;
             for (int j = 0; j < maxMoves; j++) {
                 Action a;
                 WorldState xNext;
@@ -127,8 +132,7 @@ public class Agent : Entity {
 
                 if (xNext == null) break;
 
-                totalCost += cost;
-                plan.Add(new MakePlanActionStruct(a, xNext, totalCost));
+                plan.Add(new MakePlanActionStruct(a, xNext, cost));
             }
 
             //Truncate the plan so it does not have doubles
@@ -141,10 +145,31 @@ public class Agent : Entity {
                 }
             }
 
-            GD.Print("ONE PLAN IS TO : ");
-            foreach(MakePlanActionStruct makePlanAction in plan) {
-                GD.Print(makePlanAction._action);
+            //Truncate the plan so it stops at the best position
+            int currentJ = -1;
+            float minimumScore = float.PositiveInfinity;
+            for (int j = 0; j < plan.Count; j++) {
+                float score = _currentDesire.Score(plan[j]._worldState, Name);
+                if (score < minimumScore) {
+                    currentJ = j;
+                    minimumScore = score;
+                }
             }
+            while (plan.Count > currentJ + 1) {
+                plan.RemoveAt(currentJ + 1);
+            }
+
+            //Bake the costs, here we add the cost of every action
+            float totalCost = 0;
+            for (int j = 0; j < plan.Count; j++) {
+                totalCost += plan[j]._cost;
+                plan[j].SetCost(totalCost);
+            }
+
+            //GD.Print("ONE PLAN IS TO : ");
+            //foreach(MakePlanActionStruct makePlanAction in plan) {
+            //    GD.Print(makePlanAction._action);
+            //}
 
             allRuns.Add(plan);
         }
@@ -155,7 +180,7 @@ public class Agent : Entity {
         for (int i = 0; i < allRuns.Count; i++) {
             int last = allRuns[i].Count - 1;
             float score = _currentDesire.Score(allRuns[i][last]._worldState, Name) * allRuns[i][last]._cost;
-            GD.Print("x               " + allRuns[i][last]._action + "(" + score + ")");
+            //GD.Print("x               " + allRuns[i][last]._action + "(" + score + ")");
 
             if (score < minimumScoreCost) {
                 iMinimum = i;
@@ -169,22 +194,29 @@ public class Agent : Entity {
             bestPlan.Add(makePlanAction._action);
         }
 
-        GD.Print("INTENTIONS : ");
-        foreach(Action a in bestPlan) {
-            GD.Print(a);
-        }
+        //Generate a final worldstate for our current plan
+        WorldState predicted = _beliefs.Clone();
+        foreach(Action a in currentPlan) {
+            predicted.Do(this, a);
+            predicted = predicted.Clone();
+        } 
 
+        //If the new plan is better than the current plan
+        if (_currentDesire.Score(predicted, Name) < _currentDesire.Score(allRuns[iMinimum][allRuns[iMinimum].Count - 1]._worldState, Name)) {
+            return currentPlan;
+        }
+        //Else
         return bestPlan;
     }
 
     public (WorldState, Action, float) GenerateMove (WorldState currentWorldState) {
         List<Action> rawAvailableActions = currentWorldState.GetActions();
         List<Action> availableActions = new List<Action>();
-        GD.Print("  AVAILABLE : ");
+        //GD.Print("  AVAILABLE : ");
         foreach(Action a in rawAvailableActions) {
             List<Coord> path = currentWorldState.PathFind(this, a);
             if (path != null) {
-                GD.Print("  " + a);
+                //GD.Print("  " + a);
                 availableActions.Add(a);
             }
         }
@@ -194,7 +226,7 @@ public class Agent : Entity {
         WorldState next = currentWorldState.Clone();
 
         Action action = availableActions[random.Next(availableActions.Count)];
-        GD.Print("  choosed to do " + action);
+        //GD.Print("  choosed to do " + action);
         List<Coord> actionPath = next.Do(this, action);
 
         return (next, action, actionPath.Count);
