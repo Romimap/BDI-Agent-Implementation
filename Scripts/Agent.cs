@@ -110,10 +110,10 @@ public class Agent : Entity {
 
     public List<Action> MakePlans (int maxTries, int maxMoves) {
         List<List<MakePlanActionStruct>> allRuns = new List<List<MakePlanActionStruct>>();
-        GD.Print("\n\n\n\n\nGENERATING INTENTIONS !");
+        // GD.Print("\n\n\n\n\nGENERATING INTENTIONS !");
 
         for (int i = 0; i < maxTries; i++) {
-            GD.Print("GENERATING PLAN !");
+            // GD.Print("GENERATING PLAN !");
             List<MakePlanActionStruct> plan = new List<MakePlanActionStruct>();
 
             WorldState currentWorldState = _beliefs;
@@ -141,9 +141,9 @@ public class Agent : Entity {
                 }
             }
 
-            GD.Print("ONE PLAN IS TO : ");
+            // GD.Print("ONE PLAN IS TO : ");
             foreach(MakePlanActionStruct makePlanAction in plan) {
-                GD.Print(makePlanAction._action);
+                // GD.Print(makePlanAction._action);
             }
 
             allRuns.Add(plan);
@@ -155,7 +155,7 @@ public class Agent : Entity {
         for (int i = 0; i < allRuns.Count; i++) {
             int last = allRuns[i].Count - 1;
             float score = _currentDesire.Score(allRuns[i][last]._worldState, Name) * allRuns[i][last]._cost;
-            GD.Print("x               " + allRuns[i][last]._action + "(" + score + ")");
+            // GD.Print("x               " + allRuns[i][last]._action + "(" + score + ")");
 
             if (score < minimumScoreCost) {
                 iMinimum = i;
@@ -169,9 +169,9 @@ public class Agent : Entity {
             bestPlan.Add(makePlanAction._action);
         }
 
-        GD.Print("INTENTIONS : ");
+        // GD.Print("INTENTIONS : ");
         foreach(Action a in bestPlan) {
-            GD.Print(a);
+            // GD.Print(a);
         }
 
         return bestPlan;
@@ -180,11 +180,11 @@ public class Agent : Entity {
     public (WorldState, Action, float) GenerateMove (WorldState currentWorldState) {
         List<Action> rawAvailableActions = currentWorldState.GetActions();
         List<Action> availableActions = new List<Action>();
-        GD.Print("  AVAILABLE : ");
+        // GD.Print("  AVAILABLE : ");
         foreach(Action a in rawAvailableActions) {
             List<Coord> path = currentWorldState.PathFind(this, a);
             if (path != null) {
-                GD.Print("  " + a);
+                // GD.Print("  " + a);
                 availableActions.Add(a);
             }
         }
@@ -194,7 +194,7 @@ public class Agent : Entity {
         WorldState next = currentWorldState.Clone();
 
         Action action = availableActions[random.Next(availableActions.Count)];
-        GD.Print("  choosed to do " + action);
+        // GD.Print("  choosed to do " + action);
         List<Coord> actionPath = next.Do(this, action);
 
         return (next, action, actionPath.Count);
