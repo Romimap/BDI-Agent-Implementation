@@ -107,7 +107,7 @@ public class MapViewer : Spatial
                         }
                         else if (entity is Door)
                         {
-                            if (DoorShouldBeRotated(x, y))
+                            if (DoorVisuals.ShouldBeRotated(x, y))
                             {
                                 rotation.y = Mathf.Pi / 2.0f;
                             }
@@ -183,39 +183,6 @@ public class MapViewer : Spatial
         instance.RotateZ(rotation.z);
     }
 
-    private bool DoorShouldBeRotated(int x, int y)
-    {
-        bool foundWall = false;
-        Dictionary<string, Entity> entitiesUp = WorldState.RealWorld.GetEntitiesAt(x, y - 1);
-        foreach (KeyValuePair<string, Entity> kvp in entitiesUp)
-        {
-            Entity entity = kvp.Value;
-            if (entity is Wall)
-            {
-                foundWall = true;
-                break;
-            }
-        }
-        if (!foundWall)
-            return false;
-
-        foundWall = false;
-        Dictionary<string, Entity> entitiesDown = WorldState.RealWorld.GetEntitiesAt(x, y + 1);
-        foreach (KeyValuePair<string, Entity> kvp in entitiesDown)
-        {
-            Entity entity = kvp.Value;
-            if (entity is Wall)
-            {
-                foundWall = true;
-                break;
-            }
-        }
-        if (!foundWall)
-            return false;
-
-        return true;
-    }
-
     private void ChangeVisibility(int x, int y)
     {
         Dictionary<string, Spatial> invisibleEntities = _invisibleInstances[x][y];
@@ -234,42 +201,7 @@ public class MapViewer : Spatial
 
             if (instanceName.Contains("Door"))
             {
-                OpenCloseVisualDoor(instanceName, instance, x, y);
-            }
-        }
-    }
-
-    private void OpenCloseVisualDoor(string instanceName, Spatial instance, int x, int y)
-    {
-        foreach (KeyValuePair<string, Entity> kvp2 in WorldState.RealWorld.GetEntitiesAt(x, y))
-        {
-            string entityName = kvp2.Key;
-            Entity entity = kvp2.Value;
-
-            if (entityName.Contains("Door"))
-            {
-                if (entity.Solid)
-                {
-                    if (instanceName.Contains("open"))
-                    {
-                        instance.Visible = false;
-                    }
-                    else
-                    {
-                        instance.Visible = true;
-                    }
-                }
-                else
-                {
-                    if (instanceName.Contains("open"))
-                    {
-                        instance.Visible = true;
-                    }
-                    else
-                    {
-                        instance.Visible = false;
-                    }
-                }
+                DoorVisuals.UpdateState(instanceName, instance, x, y);
             }
         }
     }

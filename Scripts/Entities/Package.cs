@@ -22,6 +22,7 @@ public class Package : ActionEntity {
 
     public override List<string> GetActionNames()
     {
-        throw new NotImplementedException();
+        return new List<string>();
+        // throw new NotImplementedException();
     }
 }

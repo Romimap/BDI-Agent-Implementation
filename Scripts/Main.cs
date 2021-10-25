@@ -18,6 +18,9 @@ public class Main : Spatial {
 		a.AddDesire(new GoToDesire(2, 13));
 		realWorld.AddEntity(a, 7, 1);
 
+		Package p = new Package("package", 0, 0);
+		realWorld.AddEntity(p, 2, 13);
+
 		realWorld.Init();
 
 		//WorldState percept = WorldState.RealWorld.Percept(2, 13, 1);
