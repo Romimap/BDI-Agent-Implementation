@@ -6,12 +6,12 @@ public class Door : ActionEntity {
 
     }
 
-    public Door (Door from) : base (from) {
+    public Door (Door from, WorldState newWorld) : base (from, newWorld) {
         //System.Console.WriteLine("CLONE " + from._name + " : " + from._solid);
     }
 
-    public override Entity Clone() {
-        return new Door(this);
+    public override Entity Clone(WorldState newWorld) {
+        return new Door(this, newWorld);
     }
 
     public override void Do(Agent agent, Action action) {

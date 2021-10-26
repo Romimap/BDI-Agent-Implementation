@@ -4,8 +4,9 @@
 code = "shader_type spatial;
 
 void vertex() {
+	vec3 w = (WORLD_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	vec3 p = VERTEX;
-	p.y += sin(TIME + (p.x + p.z) / 2.0) / 2.0;
+	p.y += sin(TIME + (w.x + w.z) / 2.0) / 2.0;
 	VERTEX = p;
 }
 

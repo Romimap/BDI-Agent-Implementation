@@ -6,11 +6,11 @@ public class Wall : Entity {
 
     }
 
-    public Wall (Wall from) : base(from) {
+    public Wall (Wall from, WorldState newWorld) : base(from, newWorld) {
 
     }
 
-    public override Entity Clone() {
-        return new Wall(this);
+    public override Entity Clone(WorldState newWorld) {
+        return new Wall(this, newWorld);
     }    
 }

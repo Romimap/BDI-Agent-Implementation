@@ -58,7 +58,7 @@ public class WorldState {
             for (int y = 0; y < from._map[x].Count; y++) {
                 _map[x].Add(new Dictionary<string, Entity>());
                 foreach (KeyValuePair<string, Entity> kvp in from._map[x][y]) {
-                    Entity clone = kvp.Value.Clone();
+                    Entity clone = kvp.Value.Clone(this);
                     _map[x][y].Add(clone.Name, clone);
                     clone.SetCoord(x, y);
                     _entities.Add(clone.Name, clone);
@@ -87,7 +87,7 @@ public class WorldState {
                 if (Mathf.Abs(x - xPos) <= radius && Mathf.Abs(y - yPos) <= radius) {
                     _map[x].Add(new Dictionary<string, Entity>());
                     foreach (KeyValuePair<string, Entity> kvp in from._map[x][y]) {
-                        Entity clone = kvp.Value.Clone();
+                        Entity clone = kvp.Value.Clone(this);
                         _map[x][y].Add(clone.Name, clone);
                         clone.SetCoord(x, y);
                         _entities.Add(clone.Name, clone);
@@ -120,7 +120,7 @@ public class WorldState {
     }
 
     public void AddEntity (Entity e, int x, int y) {
-        Entity clone = e.Clone();
+        Entity clone = e.Clone(this);
         if (clone is Agent) _agents.Add(clone.Name, (Agent)clone);
         if (clone is ActionEntity) _actionEntities.Add(clone.Name, (ActionEntity)clone);
         _entities.Add(clone.Name, clone);
@@ -225,6 +225,16 @@ public class WorldState {
             }
         }
 
+        foreach (KeyValuePair<string, Agent> kvp in _agents) {
+            Entity pocket = kvp.Value._pocket;
+            if (pocket != null && pocket is ActionEntity) {
+                foreach(string actionName in (pocket as ActionEntity).GetActionNames()) {
+                    Action action = new Action(pocket.Name, actionName);
+                    ans.Add(action);
+                }
+            }
+        }
+
         return ans;
     }
 
@@ -233,6 +243,16 @@ public class WorldState {
             return null;
             
         return _map[x][y];
+    }
+
+    public bool RemoveEntityAt(int x, int y, Entity e) {
+        if (_map[x][y].ContainsKey(e.Name)) {
+            Entity entity = _map[x][y][e.Name];
+            //TODO, free the entity ?
+            _map[x][y].Remove(e.Name);
+            return true;
+        }
+        return false;
     }
 
     public int AddPercept (WorldState percept) {
@@ -246,7 +266,7 @@ public class WorldState {
                             if (_entities.ContainsKey(kvp.Key)) { //Something moved Here
                                 Move(_entities[kvp.Key], x, y);
                             } else { //A new object is discovered
-                                Entity clone = kvp.Value.Clone();
+                                Entity clone = kvp.Value.Clone(this);
 
                                 _map[x][y].Add(clone.Name, clone);
                                 _entities.Add(clone.Name, clone);
@@ -261,7 +281,7 @@ public class WorldState {
 
                         }
                         if (_map[x][y].ContainsKey(kvp.Key)) { //Something changed
-                            Entity clone = kvp.Value.Clone();
+                            Entity clone = kvp.Value.Clone(this);
                             _map[x][y].Remove(clone.Name);
                             _entities.Remove(clone.Name);
                             if (clone is ActionEntity) {
@@ -341,6 +361,8 @@ public class WorldState {
                             if (i < 7) i = 7;
                         } else if (kvp.Value is Flag) {
                             if (i < 6) i = 6;
+                        } else if (kvp.Value is Package) {
+                            if (i < 5) i = 5;
                         } else if (kvp.Value is Floor) {
                             if (i < 1) i = 1;
                         }
@@ -349,6 +371,7 @@ public class WorldState {
                     else if (i == 8) ans += "-";
                     else if (i == 7) ans += "#";
                     else if (i == 6) ans += "F";
+                    else if (i == 5) ans += "P";
                     else if (i == 1) ans += ".";
                     else ans += "?";
                         

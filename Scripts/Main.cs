@@ -12,7 +12,7 @@ public class Main : Spatial {
 		richTextLabel = (RichTextLabel)GetNode("/root/World/Control/VBoxContainer/RichTextLabel");
 		WorldState realWorld = new WorldState("./Maps/map001.png");
 
-		Flag f = new Flag("flag", 0, 0);
+		Package f = new Package("package", 0, 0);
 		realWorld.AddEntity(f, 2, 13);
 
 		Agent a = new Agent("gotoAgent", 0, 0);
@@ -42,6 +42,7 @@ public class Main : Spatial {
 				GD.Print("Agent pos: (" + agent.X + ", " + agent.Y + ")");
 				MapViewer.ChangeVisibility(agent);
 			}
+			System.Console.WriteLine("WORLD STATE \n" + WorldState.RealWorld);
 			stopwatch.Stop();
 			GD.Print("Tick time : " + stopwatch.ElapsedMilliseconds + "ms");
 		}

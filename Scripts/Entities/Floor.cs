@@ -6,11 +6,11 @@ public class Floor : Entity {
 
     }
 
-    public Floor (Floor from) : base(from) {
+    public Floor (Floor from, WorldState newWorld) : base(from, newWorld) {
 
     }
 
-    public override Entity Clone() {
-        return new Floor(this);
+    public override Entity Clone(WorldState newWorld) {
+        return new Floor(this, newWorld);
     }    
 }

@@ -15,11 +15,12 @@ public class Agent : Entity {
     private List<Coord> _currentPath = new List<Coord>();
     public Entity _pocket = null;
 
+
     public Agent (string name, int x, int y) : base (name, x, y, false) {
     }
 
-    public Agent (Agent from) : base(from) {
-        if (from._pocket != null) _pocket = _pocket.Clone();
+    public Agent (Agent from, WorldState newWorld) : base(from, newWorld) {
+        if (from._pocket != null) _pocket = from._pocket.Clone(newWorld);
         _beliefs = from._beliefs;
         _desires = from._desires;
         _currentDesire = from._currentDesire;
@@ -232,8 +233,8 @@ public class Agent : Entity {
         return (next, action, actionPath.Count);
     }
 
-    public override Entity Clone () {
-        return new Agent(this);
+    public override Entity Clone (WorldState newWorld) {
+        return new Agent(this, newWorld);
     }
 
     public string PrintBeliefs() {

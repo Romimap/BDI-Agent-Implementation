@@ -6,11 +6,11 @@ public class DeliverySpot : Entity {
 
     }
 
-    public DeliverySpot (DeliverySpot from) : base(from) {
+    public DeliverySpot (DeliverySpot from, WorldState newWorld) : base(from, newWorld) {
 
     }
 
-    public override Entity Clone() {
-        return new DeliverySpot(this);
+    public override Entity Clone(WorldState newWorld) {
+        return new DeliverySpot(this, newWorld);
     }    
 }

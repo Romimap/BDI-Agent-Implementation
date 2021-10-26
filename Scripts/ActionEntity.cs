@@ -7,7 +7,7 @@ public abstract class ActionEntity : Entity {
         
     }
 
-    public ActionEntity (ActionEntity from) : base(from) {
+    public ActionEntity (ActionEntity from, WorldState newWorld) : base(from, newWorld) {
         
     }
 

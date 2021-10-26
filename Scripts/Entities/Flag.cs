@@ -7,12 +7,12 @@ public class Flag : ActionEntity {
 
     }
 
-    public Flag (Flag from) : base(from) {
+    public Flag (Flag from, WorldState newWorld) : base(from, newWorld) {
 
     }
 
-    public override Entity Clone() {
-        return new Flag(this);
+    public override Entity Clone(WorldState newWorld) {
+        return new Flag(this, newWorld);
     }
 
     public override void Do(Agent agent, Action action) {
