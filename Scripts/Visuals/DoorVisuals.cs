@@ -18,40 +18,4 @@ public class DoorVisuals
         }
         return false;
     }
-
-    // TODO : remove
-    public static void UpdateState(string instanceName, Spatial instance, int x, int y)
-    {
-        foreach (KeyValuePair<string, Entity> kvp in WorldState.RealWorld.GetEntitiesAt(x, y))
-        {
-            string entityName = kvp.Key;
-            Entity entity = kvp.Value;
-
-            if (entityName.ToLower().Contains("door"))
-            {
-                if (entity.Solid)
-                {
-                    if (instanceName.ToLower().Contains("open"))
-                    {
-                        instance.Visible = false;
-                    }
-                    else
-                    {
-                        instance.Visible = true;
-                    }
-                }
-                else
-                {
-                    if (instanceName.ToLower().Contains("open"))
-                    {
-                        instance.Visible = true;
-                    }
-                    else
-                    {
-                        instance.Visible = false;
-                    }
-                }
-            }
-        }
-    }
 }

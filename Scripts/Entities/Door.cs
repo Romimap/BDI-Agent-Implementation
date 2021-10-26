@@ -17,8 +17,16 @@ public class Door : ActionEntity {
 
     public override void Do(Agent agent, Action action) {
         System.Console.WriteLine("      xx        ." + action._actionName +".");
-        if (action._actionName.Equals("open")) _solid = false;
-        if (action._actionName.Equals("close")) _solid = true;        
+        if (action._actionName.Equals("open")) {
+            _solid = false;
+            if (_visuals != null)
+                _visuals.SetActionned(true);
+        }
+        if (action._actionName.Equals("close")) {
+            _solid = true;
+            if (_visuals != null)
+                _visuals.SetActionned(false);
+        }
     }
 
     public override List<string> GetActionNames() {
