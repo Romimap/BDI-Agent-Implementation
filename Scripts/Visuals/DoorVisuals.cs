@@ -4,39 +4,22 @@ using System.Collections.Generic;
 
 public class DoorVisuals
 {
+    // Return true if a wall is on the y+1 tile
     public static bool ShouldBeRotated(int x, int y)
     {
-        bool foundWall = false;
         Dictionary<string, Entity> entitiesUp = WorldState.RealWorld.GetEntitiesAt(x, y - 1);
         foreach (KeyValuePair<string, Entity> kvp in entitiesUp)
         {
             Entity entity = kvp.Value;
             if (entity is Wall)
             {
-                foundWall = true;
-                break;
+                return true;
             }
         }
-        if (!foundWall)
-            return false;
-
-        foundWall = false;
-        Dictionary<string, Entity> entitiesDown = WorldState.RealWorld.GetEntitiesAt(x, y + 1);
-        foreach (KeyValuePair<string, Entity> kvp in entitiesDown)
-        {
-            Entity entity = kvp.Value;
-            if (entity is Wall)
-            {
-                foundWall = true;
-                break;
-            }
-        }
-        if (!foundWall)
-            return false;
-
-        return true;
+        return false;
     }
 
+    // TODO : remove
     public static void UpdateState(string instanceName, Spatial instance, int x, int y)
     {
         foreach (KeyValuePair<string, Entity> kvp in WorldState.RealWorld.GetEntitiesAt(x, y))
@@ -44,11 +27,11 @@ public class DoorVisuals
             string entityName = kvp.Key;
             Entity entity = kvp.Value;
 
-            if (entityName.Contains("Door"))
+            if (entityName.ToLower().Contains("door"))
             {
                 if (entity.Solid)
                 {
-                    if (instanceName.Contains("open"))
+                    if (instanceName.ToLower().Contains("open"))
                     {
                         instance.Visible = false;
                     }
@@ -59,7 +42,7 @@ public class DoorVisuals
                 }
                 else
                 {
-                    if (instanceName.Contains("open"))
+                    if (instanceName.ToLower().Contains("open"))
                     {
                         instance.Visible = true;
                     }
