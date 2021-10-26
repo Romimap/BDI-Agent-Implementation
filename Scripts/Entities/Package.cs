@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class Package : ActionEntity {
     
     public Package (string name, int x, int y) : base(name, x, y, true) {
-
+        _visuals = new VisualEntity(x, y, MapViewer.PACKAGE, MapViewer.PACKAGE_GHOST);
     }
 
     public Package (Package from) : base(from) {
@@ -22,6 +22,7 @@ public class Package : ActionEntity {
 
     public override List<string> GetActionNames()
     {
-        throw new NotImplementedException();
+        return new List<string>();
+        // throw new NotImplementedException();
     }
 }

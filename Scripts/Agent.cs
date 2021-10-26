@@ -16,6 +16,7 @@ public class Agent : Entity {
     public Entity _pocket = null;
 
     public Agent (string name, int x, int y) : base (name, x, y, false) {
+        _visuals = new VisualEntity(x, y, MapViewer.AGENT);
     }
 
     public Agent (Agent from) : base(from) {

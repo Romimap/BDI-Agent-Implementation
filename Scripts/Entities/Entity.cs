@@ -9,6 +9,9 @@ public abstract class Entity {
     protected bool _solid = true;                 public bool Solid {get{return _solid;}}
     public WorldState AttachedWorldState;
 
+    // Godot visual representation
+    protected VisualEntity _visuals;              public VisualEntity Visuals {get{return _visuals;}}
+
     public Entity (string name, int x, int y, bool solid) {
         _name = name;
         _x = x;
