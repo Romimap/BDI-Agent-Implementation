@@ -88,6 +88,12 @@ public class MapViewer : Spatial
         }
     }
 
+    private void AnimateAgent(Agent agent)
+    {
+        Spatial agentInstance = agent.Visuals.VisibleInstance;
+        (agentInstance as AgentNode).MoveTo(new Vector3(agent.X, agentInstance.Translation.y, agent.Y));
+    }
+
     private void UpdateTile(int x, int y)
     {
         Dictionary<string, Entity> entities = WorldState.RealWorld.GetEntitiesAt(x, y);
@@ -105,7 +111,7 @@ public class MapViewer : Spatial
         stopwatch.Start();
 
         MapViewer MV = MapViewer._singletonInstance;
-        // AgentVisuals.ChangePosition(agent, MV._agentInstances);
+        MV.AnimateAgent(agent);
 
         int minX = Math.Max(agent.X - agent.VisionRange, 0);
         int maxX = Math.Min(agent.X + agent.VisionRange, WorldState.RealWorld.Width - 1);
