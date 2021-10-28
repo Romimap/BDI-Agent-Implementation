@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 public class Door : ActionEntity {
     public Door (string name, int x, int y) : base (name, x, y, true) {
@@ -14,7 +15,10 @@ public class Door : ActionEntity {
         return new Door(this, newWorld);
     }
 
-    public override void Do(Agent agent, Action action) {
+    public override void Do(Agent agent, Action action,
+    [CallerFilePath] string callerFilePath = "", 
+    [CallerLineNumber] long callerLineNumber = 0,
+    [CallerMemberName] string callerMember= "") {
         //System.Console.WriteLine("      xx        ." + action._actionName +".");
         if (action._actionName.Equals("open")) _solid = false;
         if (action._actionName.Equals("close")) _solid = true;        

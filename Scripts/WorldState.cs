@@ -14,6 +14,7 @@ public class WorldState {
     private Dictionary<string, Agent> _agents = new Dictionary<string, Agent>();
     public Dictionary<string, Agent> Agents {get{return _agents;}}
     private Dictionary<string, ActionEntity> _actionEntities = new Dictionary<string, ActionEntity>();
+    public Dictionary<string, ActionEntity> ActionEntities {get {return _actionEntities;}}
     public int Width {get{return _map.Count;}}
     public int Height {get{return _map[0].Count;}}
 
@@ -120,6 +121,7 @@ public class WorldState {
     }
 
     public void AddEntity (Entity e, int x, int y) {
+        GD.Print(e + " " + e.Name + " " + x + ", " + y);
         Entity clone = e.Clone(this);
         if (clone is Agent) _agents.Add(clone.Name, (Agent)clone);
         if (clone is ActionEntity) _actionEntities.Add(clone.Name, (ActionEntity)clone);
@@ -145,7 +147,21 @@ public class WorldState {
     }
 
     public List<Coord> Do (Agent agent, Action action) {
-        if (!_actionEntities.ContainsKey(action._entityName)) return null;
+        if (this == RealWorld) System.Console.WriteLine("; ; ; ; ; ; ; ; ; ; in WorldState.Do " + action + " from " + agent.Name);
+        //Pocket action
+        ActionEntity pocket = null;
+        if (agent._pocket != null && agent._pocket is ActionEntity) {
+            pocket = (ActionEntity)agent._pocket.Clone(this);
+            if (pocket.Name.Equals(action._entityName)) {
+                pocket.Do(agent, action);
+                return new List<Coord>{agent.GetCoord()};
+            }
+        }
+
+        //World action
+        if (!_actionEntities.ContainsKey(action._entityName)) {
+            return null;
+        }
         ActionEntity actionEntity = _actionEntities[action._entityName];
         List<Coord> path = PathFind(agent, action);
         if (path == null) return null;
@@ -160,6 +176,15 @@ public class WorldState {
     }
 
     public List<Coord> PathFind (Agent agent, Action action) {
+        //Pocket action
+        ActionEntity pocket = null;
+        if (agent._pocket != null && agent._pocket is ActionEntity) {
+            pocket = (ActionEntity)agent._pocket;
+            if (pocket.Name.Equals(action._entityName)) {
+                return new List<Coord>{agent.GetCoord()};
+            }
+        }
+
         if (!_actionEntities.ContainsKey(action._entityName)) {
             return null;
         }
@@ -250,6 +275,11 @@ public class WorldState {
             Entity entity = _map[x][y][e.Name];
             //TODO, free the entity ?
             _map[x][y].Remove(e.Name);
+
+            _entities.Remove(entity.Name);
+            if (entity is Agent) _agents.Remove(entity.Name);
+            if (entity is ActionEntity) _actionEntities.Remove(entity.Name);
+
             return true;
         }
         return false;

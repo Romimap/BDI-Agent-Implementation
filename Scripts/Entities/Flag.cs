@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 public class Flag : ActionEntity {
 
@@ -15,11 +16,14 @@ public class Flag : ActionEntity {
         return new Flag(this, newWorld);
     }
 
-    public override void Do(Agent agent, Action action) {
+    public override void Do(Agent agent, Action action,
+    [CallerFilePath] string callerFilePath = "", 
+    [CallerLineNumber] long callerLineNumber = 0,
+    [CallerMemberName] string callerMember= "") {
         
     }
 
     public override List<string> GetActionNames() {
-        return new List<string>{"watch"};
+        return new List<string>{"go to"};
     }
 }

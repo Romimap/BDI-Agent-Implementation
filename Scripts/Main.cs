@@ -12,11 +12,14 @@ public class Main : Spatial {
 		richTextLabel = (RichTextLabel)GetNode("/root/World/Control/VBoxContainer/RichTextLabel");
 		WorldState realWorld = new WorldState("./Maps/map001.png");
 
-		Package f = new Package("package", 0, 0);
+		Flag f = new Flag("flag", 0, 0);
 		realWorld.AddEntity(f, 2, 13);
 
+		Package p = new Package("package", 0, 0);
+		realWorld.AddEntity(p, 1, 7);
+
 		Agent a = new Agent("gotoAgent", 0, 0);
-		a.AddDesire(new GoToDesire(2, 13));
+		a.AddDesire(new DeliverDesire(p, f));
 		realWorld.AddEntity(a, 7, 1);
 
 		realWorld.Init();
@@ -36,13 +39,17 @@ public class Main : Spatial {
 			stopwatch.Start();
 			timer += 0.5f;
 			WorldState.RealWorld.Tick();
+			System.Console.WriteLine("WORLD STATE \n" + WorldState.RealWorld);
+			
 			foreach (KeyValuePair<string, Agent> kvp in WorldState.RealWorld.Agents) {
 				Agent agent = kvp.Value;
 				// GD.Print(agent.PrintBeliefs());
 				GD.Print("Agent pos: (" + agent.X + ", " + agent.Y + ")");
 				MapViewer.ChangeVisibility(agent);
+				System.Console.WriteLine(agent.Name + " pocket : " + agent._pocket?.Name);
 			}
-			System.Console.WriteLine("WORLD STATE \n" + WorldState.RealWorld);
+
+
 			stopwatch.Stop();
 			GD.Print("Tick time : " + stopwatch.ElapsedMilliseconds + "ms");
 		}
