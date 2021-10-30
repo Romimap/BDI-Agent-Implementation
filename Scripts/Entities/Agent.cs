@@ -17,34 +17,20 @@ public class Agent : Entity {
 	public Entity _pocket = null;
 
 
-
-
-
-
-
 	public Agent (string name, int x, int y) : base (name, x, y, false) {
-
+		_visuals = new VisualEntity(x, y, MapViewer.AGENT);
 	}
-
-
-
-
-
 
 	public Agent (Agent from, WorldState newWorld) : base(from, newWorld) {
 		if (from._pocket != null) _pocket = from._pocket.Clone(newWorld);
 		else _pocket = null;
+
 		_beliefs = from._beliefs;
 		_desires = from._desires;
 		_currentDesire = from._currentDesire;
 		_intentions = from._intentions;
 		_currentPath = from._currentPath;
 	}
-
-
-
-
-
 
 	public void Init () {
 		_beliefs = WorldState.DefaultBelief();
@@ -55,11 +41,6 @@ public class Agent : Entity {
 		//_currentDesire = _desires[0];
 		
 	}
-
-
-
-
-
 
 	public void Tick () {
 		//Percept
@@ -121,19 +102,9 @@ public class Agent : Entity {
 		}
 	}
 
-
-
-
-
-
 	public void AddDesire (Desire d) {
 		_desires.Add(d);
 	}
-
-
-
-
-
 
 	public void ChooseDesire () {
 		float score = float.PositiveInfinity;
@@ -145,11 +116,6 @@ public class Agent : Entity {
 			}
 		}
 	}
-
-
-
-
-
 
 	public struct MakePlanActionStruct {
 		public Action _action;
@@ -173,11 +139,6 @@ public class Agent : Entity {
 		}
 	}
 
-
-
-
-
-
 	public List<Action> MakePlans (int maxTries, int maxMoves) {
 		//System.Console.WriteLine("Make Plans");
 		List<List<MakePlanActionStruct>> allRuns = new List<List<MakePlanActionStruct>>();
@@ -200,7 +161,6 @@ public class Agent : Entity {
 				temperature *= alpha;
 				currentWorldState = generatedAction._worldState;
 			}
-
 			allRuns.Add(plan);
 		}
 
@@ -228,12 +188,6 @@ public class Agent : Entity {
 
 		return bestPlan;
 	}
-
-
-
-
-
-
 
 	public MakePlanActionStruct GenerateMove (WorldState currentWorldState, float t, float baseCost, List<MakePlanActionStruct> currentRun) {
 		//System.Console.WriteLine("      GenerateMove");
