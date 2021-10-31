@@ -130,6 +130,14 @@ public class WorldState {
         clone.SetCoord(x, y);
     }
 
+    public void AddEntityWithoutCloning (Entity e, int x, int y) {
+		if (e is Agent) _agents.Add(e.Name, (Agent)e);
+		if (e is ActionEntity) _actionEntities.Add(e.Name, (ActionEntity)e);
+		_entities.Add(e.Name, e);
+		_map[x][y].Add(e.Name, e);
+		e.SetCoord(x, y);
+	}
+
     public void Init () {
         foreach (KeyValuePair<string, Agent> kvp in _agents) {
             kvp.Value.Init();

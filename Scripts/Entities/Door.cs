@@ -21,8 +21,16 @@ public class Door : ActionEntity {
     [CallerLineNumber] long callerLineNumber = 0,
     [CallerMemberName] string callerMember= "") {
         //System.Console.WriteLine("      xx        ." + action._actionName +".");
-        if (action._actionName.Equals("open")) _solid = false;
-        if (action._actionName.Equals("close")) _solid = true;        
+        if (action._actionName.Equals("open")) {
+            _solid = false;
+            if (_visuals != null)
+                _visuals.SetActionned(true);
+        }
+        if (action._actionName.Equals("close")) {
+            _solid = true;
+            if (_visuals != null)
+                _visuals.SetActionned(false);
+        }       
     }
 
     public override List<string> GetActionNames() {

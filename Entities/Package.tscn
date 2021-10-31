@@ -2,18 +2,19 @@
 
 [ext_resource path="res://Scripts/Entities/PackageNode.cs" type="Script" id=1]
 
-
-[sub_resource type="Curve" id=2]
+[sub_resource type="Curve" id=1]
 _data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
 
-[sub_resource type="SpatialMaterial" id=1]
+[sub_resource type="SpatialMaterial" id=2]
 albedo_color = Color( 0.584314, 0.0431373, 0.513726, 1 )
 
 [node name="Package" type="CSGCombiner"]
+script = ExtResource( 1 )
+_animationCurve = SubResource( 1 )
 
 [node name="CSGBox" type="CSGBox" parent="."]
 transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0, 0.25, 0 )
 width = 0.5
 height = 0.5
 depth = 0.5
-material = SubResource( 1 )
+material = SubResource( 2 )

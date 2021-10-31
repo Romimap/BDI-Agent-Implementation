@@ -12,15 +12,18 @@ public class Main : Spatial {
 		richTextLabel = (RichTextLabel)GetNode("/root/World/Control/VBoxContainer/RichTextLabel");
 		WorldState realWorld = new WorldState("./Maps/map001.png");
 
-		Flag f = new Flag("flag", 0, 0);
-		realWorld.AddEntity(f, 2, 13);
+		Flag f = new Flag("flag", 2, 13);
+		realWorld.AddEntityWithoutCloning(f, 2, 13);
 
-		Package p = new Package("package", 0, 0);
-		realWorld.AddEntity(p, 1, 7);
+		Package p = new Package("package", 2, 13);
+		realWorld.AddEntityWithoutCloning(p, 2, 13);
 
-		Agent a = new Agent("gotoAgent", 0, 0);
+		DeliverySpot d = new DeliverySpot("deliverySpot", 14, 7);
+		realWorld.AddEntityWithoutCloning(d, 14, 7);
+
+		Agent a = new Agent("gotoAgent", 7, 1);
 		a.AddDesire(new DeliverDesire(p, f));
-		realWorld.AddEntity(a, 7, 1);
+		realWorld.AddEntityWithoutCloning(a, 7, 1);
 
 		realWorld.Init();
 
@@ -29,6 +32,7 @@ public class Main : Spatial {
 
 		// GD.Print(realWorld);
 		mapViewer = new MapViewer(GetNode("VisibleMap"), GetNode("InvisibleMap"), GetNode("./Camera"));
+		MapViewer.UpdateTilesAround(a);
 	}
 
 	float timer = 0.5f;
