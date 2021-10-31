@@ -10,7 +10,7 @@ public class WorldState {
     public static WorldState RealWorld = null;
     private Dictionary<string, Entity> _entities = new Dictionary<string, Entity>();
     public Dictionary<string, Entity> Entities {get{return _entities;}}
-    private List<List<Dictionary<string, Entity>>> _map;
+    private List<List<Dictionary<string, Entity>>> _map;    public List<List<Dictionary<string, Entity>>> Map {get{return _map;}}
     private Dictionary<string, Agent> _agents = new Dictionary<string, Agent>();
     public Dictionary<string, Agent> Agents {get{return _agents;}}
     private Dictionary<string, ActionEntity> _actionEntities = new Dictionary<string, ActionEntity>();
