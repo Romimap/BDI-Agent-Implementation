@@ -16,12 +16,14 @@ public class PackageNode : Spatial
 	}
 
 	public void PickUp() {
+		GD.Print("PackageNode PickUp");
 		_scaleFrom = ((Spatial)MapViewer.PACKAGE.Instance()).Scale;
 		_scaleTo = new Vector3(0, 0, 0);
 		_timer = 0f;
 	}
 
 	public void DropOff() {
+		GD.Print("PackageNode DropOff");
 		_scaleFrom = new Vector3(0, 0, 0);
 		_scaleTo = ((Spatial)MapViewer.PACKAGE.Instance()).Scale;
 		_timer = 0f;

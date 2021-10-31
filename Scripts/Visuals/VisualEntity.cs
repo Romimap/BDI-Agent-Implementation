@@ -93,6 +93,22 @@ public class VisualEntity
         }
     }
 
+    public void UpdatePosition(int x, int y) {
+        Vector3 translation = new Vector3(x - _x, 0, y - _y);
+        UpdateInstancePosition(_visible, translation);
+        UpdateInstancePosition(_ghost, translation);
+        UpdateInstancePosition(_visibleActionned, translation);
+        UpdateInstancePosition(_ghostActionned, translation);
+        _x = x;
+        _y = y;
+    }
+
+    private void UpdateInstancePosition(Spatial instance, Vector3 translation) {
+        if (instance != null) {
+            instance.GlobalTranslate(translation);
+        }
+    }
+
     public void ApplyRotation(float x, float y, float z)
     {
         Vector3 rotation = new Vector3(x, y, z);

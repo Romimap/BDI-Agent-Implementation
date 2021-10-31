@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Godot;
 
 public class Package : ActionEntity {
     bool _inPocketOfSomeone = false;
@@ -12,6 +13,7 @@ public class Package : ActionEntity {
 
     public Package (Package from, WorldState newWorld) : base(from, newWorld) {
         _inPocketOfSomeone = from._inPocketOfSomeone;
+        _visuals = new VisualEntity(from.X, from.Y, MapViewer.PACKAGE, MapViewer.PACKAGE_GHOST);
     }
 
     public override Entity Clone(WorldState newWorld) {
@@ -36,11 +38,21 @@ public class Package : ActionEntity {
             _inPocketOfSomeone = false;
             a._pocket = null;
             CurrentWorld.AddEntity(this, a.X, a.Y);
+            GD.Print("DROP");
+
+            Visuals.UpdatePosition(a.X, a.Y);
+            Visuals.SetVisible(true);
+            Spatial instance = Visuals.VisibleInstance;
+            (instance as PackageNode).DropOff();
         }
         if (!_inPocketOfSomeone && action._actionName.Equals("pickup")) {
             _inPocketOfSomeone = true;
             a._pocket = this;
             CurrentWorld.RemoveEntityAt(X, Y, this);
+            GD.Print("PICKUP");
+
+            Spatial instance = Visuals.VisibleInstance;
+            (instance as PackageNode).PickUp();
         }
     }
 
