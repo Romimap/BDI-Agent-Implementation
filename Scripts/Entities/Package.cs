@@ -7,7 +7,7 @@ public class Package : ActionEntity {
     bool _inPocketOfSomeone = false;
 
     public Package (string name, int x, int y) : base(name, x, y, true) {
-
+        _visuals = new VisualEntity(x, y, MapViewer.PACKAGE, MapViewer.PACKAGE_GHOST);
     }
 
     public Package (Package from, WorldState newWorld) : base(from, newWorld) {

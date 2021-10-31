@@ -30,6 +30,8 @@ public class Agent : Entity {
 		_currentDesire = from._currentDesire;
 		_intentions = from._intentions;
 		_currentPath = from._currentPath;
+
+		_visuals = new VisualEntity(from.X, from.Y, MapViewer.AGENT);
 	}
 
 	public void Init () {

@@ -45,7 +45,7 @@ public class Main : Spatial {
 				Agent agent = kvp.Value;
 				// GD.Print(agent.PrintBeliefs());
 				GD.Print("Agent pos: (" + agent.X + ", " + agent.Y + ")");
-				MapViewer.ChangeVisibility(agent);
+				MapViewer.UpdateTilesAround(agent);
 				System.Console.WriteLine(agent.Name + " pocket : " + agent._pocket?.Name);
 			}
 

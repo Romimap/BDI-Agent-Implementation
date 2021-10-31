@@ -29,7 +29,7 @@ public class WorldState {
             _map.Add(new List<Dictionary<string, Entity>>(img.Height));
             for (int y = 0; y < img.Height; y++) {
                 _map[x].Add(new Dictionary<string, Entity>());
-                Entity entity = EntityFactory.New(img.GetPixel(x, y));
+                Entity entity = EntityFactory.New(img.GetPixel(x, y), x, y);
                 if (entity != null) { 
                     _map[x][y].Add(entity.Name, entity);
                     entity.SetCoord(x, y);
@@ -43,7 +43,7 @@ public class WorldState {
                     _actionEntities.Add(entity.Name, (ActionEntity)entity);
                 }
                 if (!(entity is Wall)) {
-                    Entity floor = EntityFactory.New("floor");
+                    Entity floor = EntityFactory.New("floor", x, y);
                     _map[x][y].Add(floor.Name, floor);
                 }
             }
