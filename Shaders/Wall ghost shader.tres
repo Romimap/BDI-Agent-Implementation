@@ -12,5 +12,5 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = vec3(0.933f, 0.404f, 0.404f);
-	ALPHA = 0.2;
+	ALPHA = 0.5;
 }"

@@ -23,8 +23,7 @@ public class DeliverySpot : ActionEntity {
         
     }
 
-    public override List<string> GetActionNames()
-    {
+    public override List<string> GetActionNames() {
         return new List<string>{"go to"};
     }
 }

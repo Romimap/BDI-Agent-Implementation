@@ -171,11 +171,13 @@ public class Agent : Entity {
 		int iMinimum = 0;
 		for (int i = 0; i < allRuns.Count; i++) {
 			int last = allRuns[i].Count - 1;
-			float score = allRuns[i][last].Evaluate();
+			if (last > 0) {
+				float score = allRuns[i][last].Evaluate();
 
-			if (score < minimumScoreCost) {
-				iMinimum = i;
-				minimumScoreCost = score;
+				if (score < minimumScoreCost) {
+					iMinimum = i;
+					minimumScoreCost = score;
+				}
 			}
 		}
 
@@ -192,6 +194,9 @@ public class Agent : Entity {
 	}
 
 	public MakePlanActionStruct GenerateMove (WorldState currentWorldState, float t, float baseCost, List<MakePlanActionStruct> currentRun) {
+		if (_currentDesire.Score(currentWorldState, Name) == 0) { //We achieved our desire during the last itération, returning null !
+			return new MakePlanActionStruct(new Action(null, null), null, float.PositiveInfinity, float.PositiveInfinity);
+		}
 		//System.Console.WriteLine("      GenerateMove");
 		//System.Console.WriteLine(currentWorldState);
 		//Get all possible actions
