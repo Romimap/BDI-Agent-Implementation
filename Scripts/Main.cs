@@ -12,17 +12,15 @@ public class Main : Spatial {
 		richTextLabel = (RichTextLabel)GetNode("/root/World/Control/VBoxContainer/RichTextLabel");
 		WorldState realWorld = new WorldState("./Maps/map001.png");
 
-		Flag f = new Flag("flag", 2, 13);
-		realWorld.AddEntityWithoutCloning(f, 2, 13);
 
-		Package p = new Package("package", 2, 13);
-		realWorld.AddEntityWithoutCloning(p, 2, 13);
+		DeliverySpot ds = new DeliverySpot("delivery spot", 2, 13);
+		realWorld.AddEntityWithoutCloning(ds, 2, 13);
 
-		DeliverySpot d = new DeliverySpot("deliverySpot", 14, 7);
-		realWorld.AddEntityWithoutCloning(d, 14, 7);
+		Package p = new Package("package", 1, 7);
+		realWorld.AddEntityWithoutCloning(p, 1, 7);
 
-		Agent a = new Agent("gotoAgent", 7, 1);
-		a.AddDesire(new DeliverDesire(p, f));
+		Agent a = new Agent("deliveryBot", 7, 1);
+		a.AddDesire(new DeliverDesire(p, ds));
 		realWorld.AddEntityWithoutCloning(a, 7, 1);
 
 		realWorld.Init();
