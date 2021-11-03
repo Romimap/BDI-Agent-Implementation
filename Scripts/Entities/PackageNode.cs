@@ -31,7 +31,7 @@ public class PackageNode : Spatial
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(float delta) {
-		_timer += delta * 2;
+		_timer += delta / Main.secondsPerUpdate;
 		float t = _animationCurve.Interpolate(_timer);
 		Vector3 scale = _scaleTo * t + _scaleFrom * (1 - t);
 		Scale = scale;

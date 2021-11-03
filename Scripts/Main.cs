@@ -3,7 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-public class Main : Spatial {	
+public class Main : Spatial {
+
+	public static float secondsPerUpdate = 0.5f;
+
 	MapViewer mapViewer;
 	public static RichTextLabel richTextLabel;
 	// Called when the node enters the scene tree for the first time.
@@ -32,13 +35,13 @@ public class Main : Spatial {
 		MapViewer.UpdateTilesAround(a);
 	}
 
-	float timer = 0.5f;
+	float timer = secondsPerUpdate;
 	public override void _Process(float delta) {
 		timer -= delta;
 		if (timer <= 0) {
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
-			timer += 0.5f;
+			timer += secondsPerUpdate;
 			WorldState.RealWorld.Tick();
 			// System.Console.WriteLine("WORLD STATE \n" + WorldState.RealWorld);
 			

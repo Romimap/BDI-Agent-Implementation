@@ -23,7 +23,7 @@ public class AgentNode : Spatial
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(float delta) {
-		_timer += delta * 2;
+		_timer += delta / Main.secondsPerUpdate;
 		float t = _animationCurve.Interpolate(_timer);
 		Vector3 p = _to * t + _from * (1 - t);
 		Transform tmpTransform = GlobalTransform;
