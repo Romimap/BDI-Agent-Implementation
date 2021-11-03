@@ -26,8 +26,23 @@ public class Package : ActionEntity {
             
         Agent a = CurrentWorld.Agents[agent.Name];
         if (_inPocketOfSomeone && action._actionName.Equals("drop")) {
+            int x = a.X, y = a.Y;
+
             if (a._pocket != null && a._pocket.Visuals != null) {
-                a._pocket.Visuals.UpdatePosition(a.X, a.Y);
+                // Find closest delivery spot position
+                foreach (KeyValuePair<string, ActionEntity> kvp in CurrentWorld.ActionEntities) {
+                    ActionEntity ae = kvp.Value;
+                    if (ae is DeliverySpot) {
+                        if (Math.Abs(ae.X - x) <= 1 && Math.Abs(ae.Y - y) <= 1) {
+                            x = ae.X;
+                            y = ae.Y;
+                            GD.Print("Found a delivery spot at: (" + x + ", " + y + ")");
+                            break;
+                        }
+                    }
+                }
+
+                a._pocket.Visuals.UpdatePosition(x, y);
                 a._pocket.Visuals.SetVisible(true);
                 Spatial instance = a._pocket.Visuals.VisibleInstance;
                 (instance as PackageNode).DropOff();
@@ -35,7 +50,7 @@ public class Package : ActionEntity {
 
             _inPocketOfSomeone = false;
             a._pocket = null;
-            CurrentWorld.AddEntity(this, a.X, a.Y);
+            CurrentWorld.AddEntity(this, x, y);
         }
         if (!_inPocketOfSomeone && action._actionName.Equals("pickup")) {
             _inPocketOfSomeone = true;
