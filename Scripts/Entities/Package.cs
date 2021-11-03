@@ -24,15 +24,7 @@ public class Package : ActionEntity {
         [CallerFilePath] string callerFilePath = "", 
         [CallerLineNumber] long callerLineNumber = 0,
         [CallerMemberName] string callerMember= "") {
-        if (CurrentWorld == WorldState.RealWorld) {
-
-            System.Console.WriteLine(" + + + + + + + + + + + + in package : " + action + " by " + agent.Name + " World : " + CurrentWorld._id + " Agent World : " + agent.CurrentWorld._id);
-            Debug.WriteLine(
-                "{0}:{1}, {2}", 
-                callerFilePath,
-                callerLineNumber,
-                callerMember);
-        } 
+            
         Agent a = CurrentWorld.Agents[agent.Name];
         if (_inPocketOfSomeone && action._actionName.Equals("drop")) {
             _inPocketOfSomeone = false;

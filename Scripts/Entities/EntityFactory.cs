@@ -38,7 +38,6 @@ public class EntityFactory
     public static Entity New(Color c, int x, int y)
     {
         string pixelHexValue = "#" + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
-        System.Console.WriteLine(pixelHexValue);
 
         Entity entity = null;
         switch (pixelHexValue)

@@ -121,7 +121,6 @@ public class WorldState {
     }
 
     public void AddEntity (Entity e, int x, int y) {
-        GD.Print(e + " " + e.Name + " " + x + ", " + y);
         Entity clone = e.Clone(this);
         if (clone is Agent) _agents.Add(clone.Name, (Agent)clone);
         if (clone is ActionEntity) _actionEntities.Add(clone.Name, (ActionEntity)clone);
@@ -155,7 +154,6 @@ public class WorldState {
     }
 
     public List<Coord> Do (Agent agent, Action action) {
-        if (this == RealWorld) System.Console.WriteLine("; ; ; ; ; ; ; ; ; ; in WorldState.Do " + action + " from " + agent.Name);
         //Pocket action
         ActionEntity pocket = null;
         if (agent._pocket != null && agent._pocket is ActionEntity) {
@@ -211,7 +209,6 @@ public class WorldState {
         foreach(Coord coord in path) {
             foreach(KeyValuePair<string, Entity> kvp in _map[coord.X][coord.Y]) {
                 if (kvp.Value.Solid) {
-                    // GD.Print("OBSTRUCTED : " + kvp.Value.Name + " " + coord.X + ", " + coord.Y);
                     return true;   
                 }
             }

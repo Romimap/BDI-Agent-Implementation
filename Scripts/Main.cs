@@ -28,7 +28,6 @@ public class Main : Spatial {
 		//WorldState percept = WorldState.RealWorld.Percept(2, 13, 1);
 		//a.Beliefs.AddPercept(percept);
 
-		// GD.Print(realWorld);
 		mapViewer = new MapViewer(GetNode("VisibleMap"), GetNode("InvisibleMap"), GetNode("./Camera"));
 		MapViewer.UpdateTilesAround(a);
 	}
@@ -41,14 +40,13 @@ public class Main : Spatial {
 			stopwatch.Start();
 			timer += 0.5f;
 			WorldState.RealWorld.Tick();
-			System.Console.WriteLine("WORLD STATE \n" + WorldState.RealWorld);
+			// System.Console.WriteLine("WORLD STATE \n" + WorldState.RealWorld);
 			
 			foreach (KeyValuePair<string, Agent> kvp in WorldState.RealWorld.Agents) {
 				Agent agent = kvp.Value;
-				// GD.Print(agent.PrintBeliefs());
 				GD.Print("Agent pos: (" + agent.X + ", " + agent.Y + ")");
 				MapViewer.UpdateTilesAround(agent);
-				System.Console.WriteLine(agent.Name + " pocket : " + agent._pocket?.Name);
+				// System.Console.WriteLine(agent.Name + " pocket : " + agent._pocket?.Name);
 			}
 
 

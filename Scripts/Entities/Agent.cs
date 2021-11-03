@@ -50,13 +50,6 @@ public class Agent : Entity {
 		_beliefs.AddPercept(WorldState.RealWorld.Percept(2, 13, _visionRange));
 		_beliefs.AddPercept(WorldState.RealWorld.Percept(1, 7, _visionRange));
 
-		System.Console.WriteLine("Beliefs : ");
-		System.Console.WriteLine(_beliefs);
-
-		foreach (KeyValuePair<string, ActionEntity> kvp in _beliefs.ActionEntities) {
-			System.Console.WriteLine(kvp.Value.Name + " " + kvp.Value.CurrentWorld._id + " : " + _beliefs._id);
-		}
-
 		//Check if the path is obstructed --> reevaluate desires / intentions
 		if (_currentPath.Count > 0 && _beliefs.PathObstructed(_currentPath)) { 
 			_currentPath = new List<Coord>();
@@ -94,7 +87,6 @@ public class Agent : Entity {
 			_currentPath.RemoveAt(0);
 		} else if (_intentions.Count > 0) { //Or do our action
 			WorldState.RealWorld.Do(this, _intentions[0]);
-			System.Console.WriteLine("##########################  I did " + _intentions[0]);
 			_intentions.RemoveAt(0);
 		}
 
@@ -142,11 +134,9 @@ public class Agent : Entity {
 	}
 
 	public List<Action> MakePlans (int maxTries, int maxMoves) {
-		//System.Console.WriteLine("Make Plans");
 		List<List<MakePlanActionStruct>> allRuns = new List<List<MakePlanActionStruct>>();
 
 		for (int i = 0; i < maxTries; i++) {
-			//System.Console.WriteLine("  Try n°" + i);
 			List<MakePlanActionStruct> plan = new List<MakePlanActionStruct>();
 
 			WorldState currentWorldState = _beliefs.Clone();
@@ -182,11 +172,8 @@ public class Agent : Entity {
 		}
 
 		//Make it a list
-		//System.Console.WriteLine("THE PLAN IS : ");
 		List<Action> bestPlan = new List<Action>();
 		foreach(MakePlanActionStruct makePlanAction in allRuns[iMinimum]) {
-			//System.Console.WriteLine(makePlanAction._action);
-			//System.Console.WriteLine(makePlanAction._worldState);
 			bestPlan.Add(makePlanAction._action);
 		}
 
@@ -197,19 +184,12 @@ public class Agent : Entity {
 		if (_currentDesire.Score(currentWorldState, Name) == 0) { //We achieved our desire during the last itération, returning null !
 			return new MakePlanActionStruct(new Action(null, null), null, float.PositiveInfinity, float.PositiveInfinity);
 		}
-		//System.Console.WriteLine("      GenerateMove");
-		//System.Console.WriteLine(currentWorldState);
 		//Get all possible actions
 		List<Action> rawAvailableActions = currentWorldState.GetActions();
 		 if (_pocket != null && _pocket is ActionEntity) {
 			foreach(string actionName in (_pocket as ActionEntity).GetActionNames()) {
 				rawAvailableActions.Add(new Action(_pocket.Name, actionName));
 			}
-		}
-
-		//System.Console.WriteLine("      Raw Actions : ");
-		foreach(Action a in rawAvailableActions) {
-			//System.Console.WriteLine("          L " + a);
 		}
 		
 		//Get all action that i have not already done, and that i can find a path to
@@ -232,15 +212,8 @@ public class Agent : Entity {
 			}
 		}
 
-	   
-		//System.Console.WriteLine("      Available Actions : ");
-		foreach(Action a in availableActions) {
-			//System.Console.WriteLine("          L " + a);
-		}
-
 		//If no actions are available, return "null"
 		if (availableActions.Count == 0) {
-			//System.Console.WriteLine("          L Returning null as no action is available");
 			return new MakePlanActionStruct(new Action(null, null), null, float.PositiveInfinity, float.PositiveInfinity);
 		}
 
@@ -266,12 +239,10 @@ public class Agent : Entity {
 			}
 
 			if (random.NextDouble() < t) {
-				//System.Console.WriteLine("      choosed randomly to " + currentAction._action);
 				return currentAction;
 			}
 		}
 
-		//System.Console.WriteLine("      choosed as best action to " + bestAction._action);
 		return bestAction;
 	}
 

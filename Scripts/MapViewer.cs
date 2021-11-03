@@ -128,6 +128,5 @@ public class MapViewer : Spatial
         }
 
         stopwatch.Stop();
-        Console.WriteLine("MapViewer update done in: " + stopwatch.ElapsedMilliseconds + "ms");
     }
 }

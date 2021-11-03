@@ -53,7 +53,6 @@ public class PathFinding {
                 return 0; 
             });
             Node current = openSet[0];
-            // System.Console.WriteLine(current.FScore);
 
             if (current.Coord.Equals(end)) {
                 return ReconstructPath(current.CameFrom);

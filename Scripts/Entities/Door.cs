@@ -9,7 +9,7 @@ public class Door : ActionEntity {
     }
 
     public Door (Door from, WorldState newWorld) : base (from, newWorld) {
-        //System.Console.WriteLine("CLONE " + from._name + " : " + from._solid);
+        
     }
 
     public override Entity Clone(WorldState newWorld) {
@@ -20,7 +20,6 @@ public class Door : ActionEntity {
     [CallerFilePath] string callerFilePath = "", 
     [CallerLineNumber] long callerLineNumber = 0,
     [CallerMemberName] string callerMember= "") {
-        //System.Console.WriteLine("      xx        ." + action._actionName +".");
         if (action._actionName.Equals("open")) {
             _solid = false;
             if (_visuals != null)
