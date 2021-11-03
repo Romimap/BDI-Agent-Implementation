@@ -13,7 +13,6 @@ public class Package : ActionEntity {
 
     public Package (Package from, WorldState newWorld) : base(from, newWorld) {
         _inPocketOfSomeone = from._inPocketOfSomeone;
-        _visuals = new VisualEntity(from.X, from.Y, MapViewer.PACKAGE, MapViewer.PACKAGE_GHOST);
     }
 
     public override Entity Clone(WorldState newWorld) {
@@ -27,24 +26,26 @@ public class Package : ActionEntity {
             
         Agent a = CurrentWorld.Agents[agent.Name];
         if (_inPocketOfSomeone && action._actionName.Equals("drop")) {
+            if (a._pocket != null && a._pocket.Visuals != null) {
+                a._pocket.Visuals.UpdatePosition(a.X, a.Y);
+                a._pocket.Visuals.SetVisible(true);
+                Spatial instance = a._pocket.Visuals.VisibleInstance;
+                (instance as PackageNode).DropOff();
+            }
+
             _inPocketOfSomeone = false;
             a._pocket = null;
             CurrentWorld.AddEntity(this, a.X, a.Y);
-            GD.Print("DROP");
-
-            Visuals.UpdatePosition(a.X, a.Y);
-            Visuals.SetVisible(true);
-            Spatial instance = Visuals.VisibleInstance;
-            (instance as PackageNode).DropOff();
         }
         if (!_inPocketOfSomeone && action._actionName.Equals("pickup")) {
             _inPocketOfSomeone = true;
             a._pocket = this;
             CurrentWorld.RemoveEntityAt(X, Y, this);
-            GD.Print("PICKUP");
 
-            Spatial instance = Visuals.VisibleInstance;
-            (instance as PackageNode).PickUp();
+            if (_visuals != null) {
+                Spatial instance = _visuals.VisibleInstance;
+                (instance as PackageNode).PickUp();
+            }
         }
     }
 

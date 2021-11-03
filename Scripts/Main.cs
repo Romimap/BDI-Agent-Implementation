@@ -51,7 +51,7 @@ public class Main : Spatial {
 
 
 			stopwatch.Stop();
-			GD.Print("Tick time : " + stopwatch.ElapsedMilliseconds + "ms");
+			GD.Print("Tick time: " + stopwatch.ElapsedMilliseconds + "ms\n");
 		}
 	}
 }

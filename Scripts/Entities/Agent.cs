@@ -30,18 +30,10 @@ public class Agent : Entity {
 		_currentDesire = from._currentDesire;
 		_intentions = from._intentions;
 		_currentPath = from._currentPath;
-
-		_visuals = new VisualEntity(from.X, from.Y, MapViewer.AGENT);
 	}
 
 	public void Init () {
 		_beliefs = WorldState.DefaultBelief();
-		//_intentions.Add(new Action("package", "pickup"));
-		//_intentions.Add(new Action("Door;86", "open"));
-		//_intentions.Add(new Action("flag", "watch"));
-		//_intentions.Add(new Action("package", "drop"));
-		//_currentDesire = _desires[0];
-		
 	}
 
 	public void Tick () {
