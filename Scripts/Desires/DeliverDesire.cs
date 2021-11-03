@@ -26,7 +26,8 @@ public class DeliverDesire : Desire {
         } else if (a._pocket != null && a._pocket.Name.Equals(_package)) { //Minimize the distance between the agent and the spot
             return 1 + (Math.Abs(a.X - deliverySpot.X) + Math.Abs(a.Y - deliverySpot.Y));
         } else { //Minimize the distance between the agent and the package
-            return (10 + (Math.Abs(a.X - package.X) + Math.Abs(a.Y - package.Y))) * 2;
+            if (package != null) return (10 + (Math.Abs(a.X - package.X) + Math.Abs(a.Y - package.Y))) * 2;
+            return 100; // TODO: modify value
         }
     }
 }

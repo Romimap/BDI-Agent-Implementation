@@ -39,8 +39,12 @@ public class Agent : Entity {
 	public void Tick () {
 		//Percept
 		int deltaBeliefs = _beliefs.AddPercept(WorldState.RealWorld.Percept(X, Y, _visionRange));
-		_beliefs.AddPercept(WorldState.RealWorld.Percept(2, 13, _visionRange));
-		_beliefs.AddPercept(WorldState.RealWorld.Percept(1, 7, _visionRange));
+		foreach (KeyValuePair<string, Entity> kvp in WorldState.RealWorld.Entities) {
+			Entity entity = kvp.Value;
+			if (entity is Package || entity is DeliverySpot) {
+				_beliefs.AddPercept(WorldState.RealWorld.Percept(entity.X, entity.Y, _visionRange));
+			}
+		}
 
 		//Check if the path is obstructed --> reevaluate desires / intentions
 		if (_currentPath.Count > 0 && _beliefs.PathObstructed(_currentPath)) { 

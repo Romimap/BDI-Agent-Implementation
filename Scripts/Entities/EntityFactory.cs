@@ -12,22 +12,22 @@ public class EntityFactory
         switch (type.ToLower())
         {
             case "wall": // Wall
-                entity = new Wall("Wall;" + id++, x, y);
+                entity = new Wall("wall;" + id++, x, y);
                 break;
             case "floor": // Floor
-                entity = new Floor("Floor;" + id++, x, y);
+                entity = new Floor("floor;" + id++, x, y);
                 break;
             case "door": // Door
-                entity = new Door("Door;" + id++, x, y);
+                entity = new Door("door;" + id++, x, y);
                 break;
             case "agent": // Agent
-                entity = new Agent("Agent;" + id++, x, y);
+                entity = new Agent("agent;" + id++, x, y);
                 break;
             case "package": // Package
-                entity = new Package("Package;" + id++, x, y);
+                entity = new Package("package;" + id++, x, y);
                 break;
             case "delivery spot": // Delivery spot
-                entity = new DeliverySpot("Delivery spot;" + id++, x, y);
+                entity = new DeliverySpot("delivery spot;" + id++, x, y);
                 break;
             default:
                 break;
@@ -43,22 +43,22 @@ public class EntityFactory
         switch (pixelHexValue)
         {
             case "#000000": // Wall
-                entity = new Wall("Wall;" + id++, x, y);
+                entity = new Wall("wall;" + id++, x, y);
                 break;
             case "#FFFFFF": // Floor
-                entity = new Floor("Floor;" + id++, x, y);
+                entity = new Floor("floor;" + id++, x, y);
                 break;
             case "#FF0000": // Door
-                entity = new Door("Door;" + id++, x, y);
+                entity = new Door("door;" + id++, x, y);
                 break;
             case "#00FF00": // Agent
-                entity = new Agent("Agent;" + id++, x, y);
+                entity = new Agent("agent;" + id++, x, y);
                 break;
             case "#FF00FF": // Package
-                entity = new Package("Package;" + id++, x, y);
+                entity = new Package("package;" + id++, x, y);
                 break;
             case "#00FFFF": // Delivery spot
-                entity = new DeliverySpot("Delivery spot;" + id++, x, y);
+                entity = new DeliverySpot("delivery spot;" + id++, x, y);
                 break;
             default:
                 break;

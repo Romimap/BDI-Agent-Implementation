@@ -36,7 +36,6 @@ public class Package : ActionEntity {
                         if (Math.Abs(ae.X - x) <= 1 && Math.Abs(ae.Y - y) <= 1) {
                             x = ae.X;
                             y = ae.Y;
-                            GD.Print("Found a delivery spot at: (" + x + ", " + y + ")");
                             break;
                         }
                     }
